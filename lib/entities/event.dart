@@ -7,7 +7,7 @@ class Event {
   final User author;
   final DateTime start;
   final DateTime end;
-  final String? data; // Can be anything, for now a string placeholder
+  final String? data;
   final List<Comment> comments;
   final double latitude;
   final double longitude;
