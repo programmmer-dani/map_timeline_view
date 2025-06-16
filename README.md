@@ -1,3 +1,5 @@
 # map_timeline_view
 
-A new Flutter project.
+3rd year comnputer science course
+Focussing on UI/UX design
+This code project serves as a proof of concept
