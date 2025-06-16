@@ -23,28 +23,28 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
         return Stack(
           children: [
-            // Top: Map
+            // Top: Placeholder content (shown when split)
+            if (_splitRatio < 1.0)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: bottomHeight,
+                child: _buildTopContent(), // Renamed for clarity
+              ),
+
+            // Map view pushed down
             Positioned(
-              top: 0,
+              top: bottomHeight,
               left: 0,
               right: 0,
               height: mapHeight,
               child: _buildMap(),
             ),
 
-            // Bottom: Placeholder content
-            if (_splitRatio < 1.0)
-              Positioned(
-                top: mapHeight,
-                left: 0,
-                right: 0,
-                height: bottomHeight,
-                child: _buildBottomContent(),
-              ),
-
             // Drag handle
             Positioned(
-              top: mapHeight - 16,
+              top: bottomHeight,
               left: 0,
               right: 0,
               height: 32,
@@ -90,7 +90,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
     );
   }
 
-  Widget _buildBottomContent() {
+  Widget _buildTopContent() {
     return Container(
       color: Colors.white,
       child: const Center(
