@@ -10,8 +10,9 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
-  double _splitRatio = 1.0; // 1.0 = full map, < 1.0 = split view
-  final double _minSplit = 0.3; // Minimum visible map area
+  double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
+  final double _minSplit = 0.3; // threshold for snapping closed
+  final double _maxSplit = 0.7; // threshold for snapping open
 
   @override
   Widget build(BuildContext context) {
@@ -19,49 +20,82 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
       builder: (context, constraints) {
         final height = constraints.maxHeight;
         final mapHeight = _splitRatio * height;
-        final bottomHeight = height - mapHeight;
+        final topHeight = height - mapHeight;
 
         return Stack(
           children: [
-            // Top: Placeholder content (shown when split)
+            // Top content placeholder (shown when split)
             if (_splitRatio < 1.0)
               Positioned(
                 top: 0,
                 left: 0,
                 right: 0,
-                height: bottomHeight,
-                child: _buildTopContent(), // Renamed for clarity
+                height: topHeight,
+                child: Container(
+                  color: Colors.white,
+                  child: const Center(
+                    child: Text(
+                      'Split view placeholder',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
               ),
 
-            // Map view pushed down
+            // Map view
             Positioned(
-              top: bottomHeight,
+              top: topHeight,
               left: 0,
               right: 0,
               height: mapHeight,
               child: _buildMap(),
             ),
 
-            // Drag handle
+            // Drag handle (always visible)
             Positioned(
-              top: bottomHeight,
+              top: topHeight - 20,
               left: 0,
               right: 0,
-              height: 32,
+              height: 40,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(_minSplit, 1.0);
+                    _splitRatio = _splitRatio.clamp(0.0, 1.0);
+                  });
+                },
+                onVerticalDragEnd: (details) {
+                  setState(() {
+                    if (_splitRatio < _minSplit) {
+                      _splitRatio = 0.0; // snap closed
+                    } else if (_splitRatio > _maxSplit) {
+                      _splitRatio = 1.0; // snap fully open
+                    }
+                    // else keep where released
                   });
                 },
                 child: Center(
                   child: Container(
-                    width: 120,
-                    height: 8,
+                    width: 200,
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade400,
-                      borderRadius: BorderRadius.circular(4),
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.drag_handle,
+                        size: 24,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
@@ -76,7 +110,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   Widget _buildMap() {
     return FlutterMap(
       options: MapOptions(
-        initialCenter: LatLng(52.370216, 4.895168), // Amsterdam default center
+        initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
         initialZoom: 13.0,
         interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
       ),
@@ -87,15 +121,6 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
         ),
         const MarkerLayer(markers: []),
       ],
-    );
-  }
-
-  Widget _buildTopContent() {
-    return Container(
-      color: Colors.white,
-      child: const Center(
-        child: Text('Split view placeholder', style: TextStyle(fontSize: 18)),
-      ),
     );
   }
 }
