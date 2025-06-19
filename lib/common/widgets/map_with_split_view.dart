@@ -76,25 +76,31 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 },
                 child: Center(
                   child: Container(
-                    width: 200,
-                    height: 40,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    width: 20, // narrow width
+                    height: 150, // tall height (adjust as needed)
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: const BorderRadius.vertical(
+                        top: Radius.circular(40),
+                        bottom: Radius.circular(40),
+                      ),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black,
                           blurRadius: 4,
                           offset: const Offset(0, 2),
                         ),
                       ],
                     ),
                     child: const Center(
-                      child: Icon(
-                        Icons.drag_handle,
-                        size: 24,
-                        color: Colors.grey,
+                      child: RotatedBox(
+                        quarterTurns: 1,
+                        child: Icon(
+                          Icons.drag_handle,
+                          size: 24,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                   ),
