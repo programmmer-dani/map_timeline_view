@@ -117,22 +117,19 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
   Widget _buildMap() {
     return SizedBox.expand(
-      child: Container(
-        color: Colors.red,
-        child: FlutterMap(
-          options: MapOptions(
-            initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
-            initialZoom: 13.0,
-            interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
-          ),
-          children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.map_timeline_view',
-            ),
-            const MarkerLayer(markers: []),
-          ],
+      child: FlutterMap(
+        options: MapOptions(
+          initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
+          initialZoom: 13.0,
+          interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
         ),
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.example.map_timeline_view',
+          ),
+          const MarkerLayer(markers: []),
+        ],
       ),
     );
   }
