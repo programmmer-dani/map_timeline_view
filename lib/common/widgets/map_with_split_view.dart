@@ -10,6 +10,8 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
+  final double controlPanelHeight =
+      100.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
   final double _minSplit = 0.3; // threshold for snapping closed
   final double _maxSplit = 0.7; // threshold for snapping open
@@ -27,7 +29,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
             // Top content placeholder (shown when split)
             if (_splitRatio < 1.0)
               Positioned(
-                top: 0,
+                top: controlPanelHeight,
                 left: 0,
                 right: 0,
                 height: topHeight,
@@ -44,7 +46,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Map view
             Positioned(
-              top: topHeight,
+              top: topHeight + controlPanelHeight,
               left: 0,
               right: 0,
               height: mapHeight,
@@ -53,7 +55,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Drag handle (always visible)
             Positioned(
-              top: topHeight - 20,
+              top: topHeight - 20 + controlPanelHeight,
               left: 0,
               right: 0,
               height: 40,
@@ -114,19 +116,24 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   }
 
   Widget _buildMap() {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
-        initialZoom: 13.0,
-        interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
-      ),
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.map_timeline_view',
+    return SizedBox.expand(
+      child: Container(
+        color: Colors.red,
+        child: FlutterMap(
+          options: MapOptions(
+            initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
+            initialZoom: 13.0,
+            interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
+          ),
+          children: [
+            TileLayer(
+              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              userAgentPackageName: 'com.example.map_timeline_view',
+            ),
+            const MarkerLayer(markers: []),
+          ],
         ),
-        const MarkerLayer(markers: []),
-      ],
+      ),
     );
   }
 }
