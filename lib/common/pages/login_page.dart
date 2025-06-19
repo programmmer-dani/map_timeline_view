@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:map_timeline_view/common/pages/map_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -26,9 +27,7 @@ class LoginPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                      builder: (context) => const HomePage(), // TODO: CHANGE TO MAP VIEW PAGE
-                    ),
+                    MaterialPageRoute(builder: (context) => const MapPage()),
                   );
                 },
                 child: const Text('Login'),
@@ -37,17 +36,6 @@ class LoginPage extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Welcome to Home Page')),
     );
   }
 }
