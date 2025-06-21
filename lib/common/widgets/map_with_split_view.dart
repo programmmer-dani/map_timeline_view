@@ -13,7 +13,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   final double controlPanelHeight =
       100.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
-  final double _minSplit = 0.3; // threshold for snapping closed
+  final double _minSplit = 0.4; // threshold for snapping closed
   final double _maxSplit = 0.7; // threshold for snapping open
 
   @override
