@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:map_timeline_view/common/widgets/control_panel.dart';
-import 'package:map_timeline_view/common/widgets/map_and_timeline.dart';
+import 'package:map_timeline_view/universal_widgets/control_panel.dart';
+import 'package:map_timeline_view/universal_widgets/map_and_timeline.dart';
 
 class PhoneMapLayout extends StatelessWidget {
   const PhoneMapLayout({super.key});

@@ -11,6 +11,10 @@ class Event {
   final List<Comment> comments;
   final double latitude;
   final double longitude;
+  final List<String> tag;
+
+  final bool isClustered;
+  final int? clusterSize;
 
   Event({
     required this.id,
@@ -22,5 +26,11 @@ class Event {
     this.comments = const [],
     required this.latitude,
     required this.longitude,
+    required this.tag,
+    this.isClustered = false,
+    this.clusterSize,
   });
+
+  bool get hasComments => comments.isNotEmpty;
 }
+
