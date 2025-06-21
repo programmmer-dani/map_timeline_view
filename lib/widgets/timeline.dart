@@ -22,7 +22,7 @@ class TimelineView extends StatelessWidget {
           child: ListView.builder(
             itemCount: researchGroups.length,
             itemBuilder: (context, index) {
-              return _buildGroupRow(researchGroups[index]);
+              return _buildGroupRow(researchGroups[index], index);
             },
           ),
         ),
@@ -30,39 +30,65 @@ class TimelineView extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupRow(String groupName) {
+  Widget _buildGroupRow(String groupName, int index) {
+    // Define a list of colors for research groups
+    final List<Color> groupColors = [
+      Colors.red,
+      Colors.blue,
+      Colors.green,
+      Colors.orange,
+      Colors.purple,
+      Colors.yellow,
+      Colors.teal,
+      Colors.pink,
+    ];
+
+    // Assign a color based on the index of the group
+    final Color groupColor = groupColors[index % groupColors.length];
+
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         // Group Label
         Container(
           width: 100,
-          color: Colors.grey.shade300,
+          color: groupColor, // Use the assigned color
           alignment: Alignment.centerLeft,
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Text(
             groupName,
-            style: const TextStyle(fontWeight: FontWeight.bold),
+            style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
 
-        // Timeline (stub)
+        // Timeline with multiple rows
         Expanded(
-          child: Container(
-            height: 60,
-            width: double.infinity, // Adjust width to fit the parent
-            color: Colors.grey.shade100,
-            alignment: Alignment.centerLeft,
-            child: Row(
-              children: [
-                Container(
-                  width: 100,
-                  height: 30,
-                  margin: const EdgeInsets.all(8),
-                  color: Colors.blue.shade300,
-                  child: const Center(child: Text('Event')),
+          child: Column(
+            children: List.generate(
+              3, // Number of rows per research group
+              (rowIndex) => Container(
+                height: 60,
+                margin: const EdgeInsets.symmetric(vertical: 4),
+                color: groupColor.withOpacity(0.3), // Slightly transparent color for timeline
+                alignment: Alignment.centerLeft,
+                child: Row(
+                  children: [
+                    // Add events here for each row
+                    Container(
+                      width: 100,
+                      height: 40,
+                      margin: const EdgeInsets.symmetric(horizontal: 8),
+                      color: groupColor.withOpacity(0.6),
+                      child: Center(
+                        child: Text(
+                          'Event $rowIndex',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                // Add more dummy bars or dynamic later
-              ],
+              ),
             ),
           ),
         ),
