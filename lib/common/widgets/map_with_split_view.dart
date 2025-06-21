@@ -69,7 +69,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = 0.0; // snap closed
+                      _splitRatio = 0.25; // snap closed
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0; // snap fully open
                     }
