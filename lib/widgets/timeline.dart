@@ -19,10 +19,21 @@ class TimelineView extends StatelessWidget {
         // Timeline Area
         SizedBox(height: 80),
         Expanded(
-          child: ListView.builder(
-            itemCount: researchGroups.length,
-            itemBuilder: (context, index) {
-              return _buildGroupRow(researchGroups[index], index);
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              // Calculate the total number of rows based on the available height
+              const double rowHeight = 60; // Fixed height for each row
+              final int totalRows = (constraints.maxHeight / rowHeight).floor();
+
+              // Divide rows equally among research groups
+              final int rowsPerGroup = (totalRows / researchGroups.length).floor();
+
+              return ListView.builder(
+                itemCount: researchGroups.length,
+                itemBuilder: (context, index) {
+                  return _buildGroupRow(researchGroups[index], index, rowsPerGroup);
+                },
+              );
             },
           ),
         ),
@@ -30,7 +41,7 @@ class TimelineView extends StatelessWidget {
     );
   }
 
-  Widget _buildGroupRow(String groupName, int index) {
+  Widget _buildGroupRow(String groupName, int index, int rowsPerGroup) {
     // Define a list of colors for research groups
     final List<Color> groupColors = [
       Colors.red,
@@ -65,7 +76,7 @@ class TimelineView extends StatelessWidget {
         Expanded(
           child: Column(
             children: List.generate(
-              3, // Number of rows per research group
+              rowsPerGroup, // Dynamically calculated rows per research group
               (rowIndex) => Container(
                 height: 60,
                 margin: const EdgeInsets.symmetric(vertical: 4),
