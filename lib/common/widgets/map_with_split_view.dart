@@ -10,14 +10,17 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
+  
   final double controlPanelHeight =
-      80.0; // Adjust based on your ControlPanel height
+      78.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
   final double _minSplit = 0.47; // threshold for snapping closed
   final double _maxSplit = 0.7; // threshold for snapping open
 
   @override
   Widget build(BuildContext context) {
+    final double draggerHeight = 40;
+    final double halfDraggerHeight = draggerHeight / 2;
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
@@ -32,7 +35,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 top: controlPanelHeight,
                 left: 0,
                 right: 0,
-                height: topHeight,
+                height: topHeight + halfDraggerHeight,
                 child: Container(
                   color: Colors.white,
                   child: const Center(
@@ -46,7 +49,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Map view
             Positioned(
-              top: topHeight + controlPanelHeight,
+              top: topHeight + controlPanelHeight + halfDraggerHeight,
               left: 0,
               right: 0,
               height: mapHeight,
@@ -63,13 +66,13 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(0.0, 1.0);
+                    _splitRatio = _splitRatio.clamp(-0.8, 1.0);
                   });
                 },
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = 0.25; // snap closed
+                      _splitRatio = 0.20; // snap closed
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0; // snap fully open
                     }
