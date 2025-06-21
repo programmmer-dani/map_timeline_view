@@ -12,7 +12,7 @@ class ControlPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double padding = isMobile ? 4.0 : 8.0;
+    //final double padding = isMobile ? 4.0 : 8.0;
     final double spacing = isMobile ? 4.0 : 8.0;
     final double fontSize = isMobile ? 11.0 : 14.0;
     final double iconSize = isMobile ? 18.0 : 24.0;

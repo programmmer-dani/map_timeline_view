@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
-import '../../common/widgets/map_with_split_view.dart';
+import '../../common/widgets/map_and_timeline.dart';
 import '../../common/widgets/control_panel.dart'; // import ControlPanel
 
 class DesktopMapLayout extends StatelessWidget {
