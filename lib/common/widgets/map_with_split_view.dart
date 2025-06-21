@@ -11,9 +11,9 @@ class MapWithSplitView extends StatefulWidget {
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
   final double controlPanelHeight =
-      100.0; // Adjust based on your ControlPanel height
+      80.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
-  final double _minSplit = 0.4; // threshold for snapping closed
+  final double _minSplit = 0.47; // threshold for snapping closed
   final double _maxSplit = 0.7; // threshold for snapping open
 
   @override
@@ -22,7 +22,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
       builder: (context, constraints) {
         final height = constraints.maxHeight;
         final mapHeight = _splitRatio * height;
-        final topHeight = height - mapHeight;
+        final topHeight = height - mapHeight - 20;
 
         return Stack(
           children: [
@@ -55,7 +55,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Drag handle (always visible)
             Positioned(
-              top: topHeight - 20 + controlPanelHeight,
+              top: topHeight + controlPanelHeight,
               left: 0,
               right: 0,
               height: 40,
@@ -78,7 +78,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 },
                 child: Center(
                   child: Container(
-                    width: 20, // narrow width
+                    width: 30, // narrow width
                     height: 150, // tall height (adjust as needed)
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
