@@ -23,10 +23,9 @@ class DesktopMapLayout extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final width = constraints.maxWidth;
+        //final width = constraints.maxWidth;
         final height = constraints.maxHeight;
 
-        final leftPanelWidth = width * 0.15;
         final bottomPanelHeight = height * 0.25;
         final mainHeight = height - bottomPanelHeight;
 
@@ -34,13 +33,6 @@ class DesktopMapLayout extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Left sidebar with research groups
-                Container(
-                  width: leftPanelWidth,
-                  color: Colors.grey.shade200,
-                  child: _buildResearchGroups(80),
-                ),
-
                 // Main content: Map + bottom panels
                 Expanded(
                   child: Column(
@@ -57,7 +49,6 @@ class DesktopMapLayout extends StatelessWidget {
                         child: Row(
                           children: [
                             // Left half: Filter settings panel + Notification panel
-                            
                             Expanded(
                               flex: 1,
                               child: Row(
@@ -74,7 +65,7 @@ class DesktopMapLayout extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-                                  
+
                                   // Notification panel (left half of left side)
                                   Expanded(
                                     flex: 1,
@@ -129,26 +120,4 @@ class DesktopMapLayout extends StatelessWidget {
       },
     );
   }
-
-Widget _buildResearchGroups(double controlpanelHeight) {
-  return ListView(
-    padding: const EdgeInsets.all(8),
-    children: [
-      SizedBox(height: controlpanelHeight), // <- your requested spacer
-      ...List.generate(
-        10,
-        (index) => Padding(
-          padding: const EdgeInsets.symmetric(vertical: 4),
-          child: ElevatedButton(
-            onPressed: () {
-              // TODO: implement group select/deselect logic
-            },
-            child: Text('Research Group ${index + 1}'),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
 }
