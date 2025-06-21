@@ -38,7 +38,7 @@ class DesktopMapLayout extends StatelessWidget {
                 Container(
                   width: leftPanelWidth,
                   color: Colors.grey.shade200,
-                  child: _buildResearchGroups(),
+                  child: _buildResearchGroups(80),
                 ),
 
                 // Main content: Map + bottom panels
@@ -130,10 +130,12 @@ class DesktopMapLayout extends StatelessWidget {
     );
   }
 
-  Widget _buildResearchGroups() {
-    return ListView(
-      padding: const EdgeInsets.all(8),
-      children: List.generate(
+Widget _buildResearchGroups(double controlpanelHeight) {
+  return ListView(
+    padding: const EdgeInsets.all(8),
+    children: [
+      SizedBox(height: controlpanelHeight), // <- your requested spacer
+      ...List.generate(
         10,
         (index) => Padding(
           padding: const EdgeInsets.symmetric(vertical: 4),
@@ -145,6 +147,8 @@ class DesktopMapLayout extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
+    ],
+  );
+}
+
 }
