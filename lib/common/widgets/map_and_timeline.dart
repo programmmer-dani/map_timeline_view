@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:map_timeline_view/common/widgets/control_panel.dart';
+import 'package:map_timeline_view/common/widgets/timeline.dart';
 
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
@@ -11,7 +12,6 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
-  
   final double controlPanelHeight =
       78.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
@@ -32,7 +32,13 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
           children: [
             // Top content placeholder (shown when split)
             if (_splitRatio < 1.0)
-              Positioned(
+              TimelineView(
+                researchGroups: ['Group A', 'Group B'],
+                visibleStart: DateTime.now().subtract(Duration(hours: 1)),
+                visibleEnd: DateTime.now().add(Duration(hours: 1)),
+              ),
+
+            /*Positioned(
                 top: controlPanelHeight,
                 left: 0,
                 right: 0,
@@ -46,7 +52,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                     ),
                   ),
                 ),
-              ),
+              ), */
 
             // Map view
             Positioned(
@@ -73,7 +79,8 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = ControlPanel().isMobile ? 0.20 : 0.11; // snap closed
+                      _splitRatio =
+                          ControlPanel().isMobile ? 0.20 : 0.11; // snap closed
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0; // snap fully open
                     }

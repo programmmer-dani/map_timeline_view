@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:map_timeline_view/common/pages/map_page.dart';
+import 'package:map_timeline_view/common/pages/map_timeline_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
