@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:map_timeline_view/common/widgets/control_panel.dart';
 
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
@@ -72,7 +73,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = 0.20; // snap closed
+                      _splitRatio = ControlPanel().isMobile ? 0.20 : 0.11; // snap closed
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0; // snap fully open
                     }
