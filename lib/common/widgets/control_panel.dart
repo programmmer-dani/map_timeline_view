@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 
 class ControlPanel extends StatelessWidget {
   const ControlPanel({super.key});
 
   bool get isMobile {
     return defaultTargetPlatform == TargetPlatform.iOS ||
-           defaultTargetPlatform == TargetPlatform.android;
+        defaultTargetPlatform == TargetPlatform.android;
   }
 
   @override
   Widget build(BuildContext context) {
-    final double padding = isMobile ? 4.0 : 6.0;
-    final double spacing = isMobile ? 4.0 : 6.0;
-    final double fontSize = isMobile ? 11.0 : 13.0;
-    final double iconSize = isMobile ? 18.0 : 22.0;
+    final double padding = isMobile ? 4.0 : 8.0;
+    final double spacing = isMobile ? 4.0 : 8.0;
+    final double fontSize = isMobile ? 11.0 : 14.0;
+    final double iconSize = isMobile ? 18.0 : 24.0;
 
     return Positioned(
       top: 0,
@@ -29,13 +30,15 @@ class ControlPanel extends StatelessWidget {
             children: [
               // Row 1: Search + Slider
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 40.0), // <- inset left/right more
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 40.0 : 0.0,
+                ), // <- inset left/right more
                 child: Row(
                   children: [
                     Expanded(
                       flex: 2,
                       child: SizedBox(
-                        height: 20, // <- shorter height
+                        height: isMobile ? 20 : 35, // <- shorter height
                         child: TextField(
                           style: TextStyle(fontSize: fontSize),
                           decoration: InputDecoration(
@@ -44,7 +47,10 @@ class ControlPanel extends StatelessWidget {
                             filled: true,
                             fillColor: Colors.white,
                             isDense: true,
-                            contentPadding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(4),
                               borderSide: BorderSide.none,
@@ -59,13 +65,12 @@ class ControlPanel extends StatelessWidget {
                       child: SliderTheme(
                         data: SliderTheme.of(context).copyWith(
                           trackHeight: 2,
-                          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 5.0),
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 5.0,
+                          ),
                           overlayShape: SliderComponentShape.noOverlay,
                         ),
-                        child: Slider(
-                          value: 0.5,
-                          onChanged: (v) {},
-                        ),
+                        child: Slider(value: 0.5, onChanged: (v) {}),
                       ),
                     ),
                   ],
@@ -85,14 +90,22 @@ class ControlPanel extends StatelessWidget {
                   ),
                   if (isMobile)
                     IconButton(
-                      icon: Icon(Icons.filter_alt, color: Colors.white, size: iconSize),
+                      icon: Icon(
+                        Icons.filter_alt,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
                       padding: EdgeInsets.only(left: spacing),
                       constraints: const BoxConstraints(),
                       onPressed: () {},
                     ),
                   if (isMobile)
                     IconButton(
-                      icon: Icon(Icons.notifications, color: Colors.white, size: iconSize),
+                      icon: Icon(
+                        Icons.notifications,
+                        color: Colors.white,
+                        size: iconSize,
+                      ),
                       padding: EdgeInsets.only(left: spacing),
                       constraints: const BoxConstraints(),
                       onPressed: () {},
