@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:map_timeline_view/universal_widgets/control_panel.dart';
-import 'package:map_timeline_view/universal_widgets/timeline.dart';
+import 'package:map_timeline_view/widgets/control_panel.dart';
+import 'package:map_timeline_view/widgets/timeline.dart';
 
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});

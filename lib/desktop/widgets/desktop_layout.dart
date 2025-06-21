@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
-import '../../universal_widgets/map_and_timeline.dart';
-import '../../universal_widgets/control_panel.dart'; // import ControlPanel
+import '../../widgets/map_and_timeline.dart';
+import '../../widgets/control_panel.dart'; // import ControlPanel
 
 class DesktopMapLayout extends StatelessWidget {
   const DesktopMapLayout({super.key});
