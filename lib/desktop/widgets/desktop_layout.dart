@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import '../../common/widgets/map_with_split_view.dart';
+import '../../common/widgets/control_panel.dart'; // import ControlPanel
 
 class DesktopMapLayout extends StatelessWidget {
   const DesktopMapLayout({super.key});
@@ -15,6 +17,7 @@ class DesktopMapLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) {
+      // Fallback if someone uses this on mobile
       return const Center(child: Text('Desktop layout only'));
     }
 
@@ -27,83 +30,100 @@ class DesktopMapLayout extends StatelessWidget {
         final bottomPanelHeight = height * 0.25;
         final mainHeight = height - bottomPanelHeight;
 
-        return Row(
+        return Stack(
           children: [
-            // Left sidebar with research groups
-            Container(
-              width: leftPanelWidth,
-              color: Colors.grey.shade200,
-              child: _buildResearchGroups(),
-            ),
+            Row(
+              children: [
+                // Left sidebar with research groups
+                Container(
+                  width: leftPanelWidth,
+                  color: Colors.grey.shade200,
+                  child: _buildResearchGroups(),
+                ),
 
-            // Main content: Map + bottom panels
-            Expanded(
-              child: Column(
-                children: [
-                  // Map area takes top 75%
-                  SizedBox(
-                    height: mainHeight,
-                    child: const MapWithSplitView(),
-                  ),
+                // Main content: Map + bottom panels
+                Expanded(
+                  child: Column(
+                    children: [
+                      // Map area takes top 75%
+                      SizedBox(
+                        height: mainHeight,
+                        child: const MapWithSplitView(),
+                      ),
 
-                  // Bottom 25% panel split horizontally
-                  SizedBox(
-                    height: bottomPanelHeight,
-                    child: Row(
-                      children: [
-                        // Left half: Filter settings panel + Notification panel side-by-side
-                        Expanded(
-                          flex: 1,
-                          child: Row(
-                            children: [
-                              // Filter settings panel (left half)
-                              Expanded(
-                                child: Container(
-                                  color: Colors.blue.shade50,
-                                  child: const Center(
-                                    child: Text(
-                                      'Filter Settings Panel',
-                                      style: TextStyle(fontSize: 18),
+                      // Bottom 25% panel split horizontally
+                      SizedBox(
+                        height: bottomPanelHeight,
+                        child: Row(
+                          children: [
+                            // Left half: Filter settings panel + Notification panel
+                            
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      color: Colors.blue.shade50,
+                                      child: const Center(
+                                        child: Text(
+                                          'Filter Settings Panel',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-
-                              // Notification panel (right half)
-                              Expanded(
-                                child: Container(
-                                  color: Colors.green.shade50,
-                                  child: const Center(
-                                    child: Text(
-                                      'Notification Panel',
-                                      style: TextStyle(fontSize: 18),
+                                  
+                                  // Notification panel (left half of left side)
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      color: Colors.green.shade50,
+                                      child: const Center(
+                                        child: Text(
+                                          'Notification Panel',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-
-                        // Right half: Event preview placeholder
-                        Expanded(
-                          flex: 1,
-                          child: Container(
-                            color: Colors.orange.shade50,
-                            child: const Center(
-                              child: Text(
-                                'Event Preview Placeholder',
-                                style: TextStyle(fontSize: 18),
+                                ],
                               ),
                             ),
-                          ),
+
+                            // Right half: Notification panel + Event preview
+                            Expanded(
+                              flex: 1,
+                              child: Row(
+                                children: [
+                                  // Event preview placeholder (right half of right side)
+                                  Expanded(
+                                    flex: 1,
+                                    child: Container(
+                                      color: Colors.orange.shade50,
+                                      child: const Center(
+                                        child: Text(
+                                          'Event Preview Placeholder',
+                                          style: TextStyle(fontSize: 18),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+
+            // Floating ControlPanel on top
+            const Positioned(top: 0, left: 0, right: 0, child: ControlPanel()),
           ],
         );
       },
