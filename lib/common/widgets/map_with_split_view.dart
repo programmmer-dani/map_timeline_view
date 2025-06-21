@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:map_timeline_view/common/widgets/control_panel.dart';
 
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
@@ -10,27 +11,32 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
+  
+  final double controlPanelHeight =
+      78.0; // Adjust based on your ControlPanel height
   double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
-  final double _minSplit = 0.3; // threshold for snapping closed
+  final double _minSplit = 0.47; // threshold for snapping closed
   final double _maxSplit = 0.7; // threshold for snapping open
 
   @override
   Widget build(BuildContext context) {
+    final double draggerHeight = 40;
+    final double halfDraggerHeight = draggerHeight / 2;
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
         final mapHeight = _splitRatio * height;
-        final topHeight = height - mapHeight;
+        final topHeight = height - mapHeight - 20;
 
         return Stack(
           children: [
             // Top content placeholder (shown when split)
             if (_splitRatio < 1.0)
               Positioned(
-                top: 0,
+                top: controlPanelHeight,
                 left: 0,
                 right: 0,
-                height: topHeight,
+                height: topHeight + halfDraggerHeight,
                 child: Container(
                   color: Colors.white,
                   child: const Center(
@@ -44,7 +50,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Map view
             Positioned(
-              top: topHeight,
+              top: topHeight + controlPanelHeight + halfDraggerHeight,
               left: 0,
               right: 0,
               height: mapHeight,
@@ -53,7 +59,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
             // Drag handle (always visible)
             Positioned(
-              top: topHeight - 20,
+              top: topHeight + controlPanelHeight,
               left: 0,
               right: 0,
               height: 40,
@@ -61,13 +67,13 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(0.0, 1.0);
+                    _splitRatio = _splitRatio.clamp(-0.8, 1.0);
                   });
                 },
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = 0.0; // snap closed
+                      _splitRatio = ControlPanel().isMobile ? 0.20 : 0.11; // snap closed
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0; // snap fully open
                     }
@@ -76,7 +82,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 },
                 child: Center(
                   child: Container(
-                    width: 20, // narrow width
+                    width: 30, // narrow width
                     height: 150, // tall height (adjust as needed)
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
@@ -114,19 +120,21 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   }
 
   Widget _buildMap() {
-    return FlutterMap(
-      options: MapOptions(
-        initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
-        initialZoom: 13.0,
-        interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
-      ),
-      children: [
-        TileLayer(
-          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-          userAgentPackageName: 'com.example.map_timeline_view',
+    return SizedBox.expand(
+      child: FlutterMap(
+        options: MapOptions(
+          initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
+          initialZoom: 13.0,
+          interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
         ),
-        const MarkerLayer(markers: []),
-      ],
+        children: [
+          TileLayer(
+            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+            userAgentPackageName: 'com.example.map_timeline_view',
+          ),
+          const MarkerLayer(markers: []),
+        ],
+      ),
     );
   }
 }
