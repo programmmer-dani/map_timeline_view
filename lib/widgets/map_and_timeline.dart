@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:map_timeline_view/widgets/control_panel.dart';
+import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:map_timeline_view/widgets/timeline.dart';
 
 class MapWithSplitView extends StatefulWidget {
@@ -12,16 +13,16 @@ class MapWithSplitView extends StatefulWidget {
 }
 
 class _MapWithSplitViewState extends State<MapWithSplitView> {
-  final double controlPanelHeight =
-      78.0; // Adjust based on your ControlPanel height
-  double _splitRatio = 1.0; // 1.0 = full map, 0.0 = only top panel
-  final double _minSplit = 0.47; // threshold for snapping closed
-  final double _maxSplit = 0.7; // threshold for snapping open
+  final double controlPanelHeight = 78.0;
+  double _splitRatio = 1.0;
+  final double _minSplit = 0.47;
+  final double _maxSplit = 0.7;
 
   @override
   Widget build(BuildContext context) {
     final double draggerHeight = 40;
     final double halfDraggerHeight = draggerHeight / 2;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
@@ -30,29 +31,13 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
         return Stack(
           children: [
-            // Top content placeholder (shown when split)
+            // Top timeline view
             if (_splitRatio < 1.0)
               TimelineView(
                 researchGroups: ['Group A', 'Group B'],
-                visibleStart: DateTime.now().subtract(Duration(hours: 1)),
-                visibleEnd: DateTime.now().add(Duration(hours: 1)),
+                visibleStart: DateTime.now().subtract(const Duration(hours: 1)),
+                visibleEnd: DateTime.now().add(const Duration(hours: 1)),
               ),
-
-            /*Positioned(
-                top: controlPanelHeight,
-                left: 0,
-                right: 0,
-                height: topHeight + halfDraggerHeight,
-                child: Container(
-                  color: Colors.white,
-                  child: const Center(
-                    child: Text(
-                      'Split view placeholder',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ),
-              ), */
 
             // Map view
             Positioned(
@@ -63,12 +48,12 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
               child: _buildMap(),
             ),
 
-            // Drag handle (always visible)
+            // Drag handle
             Positioned(
               top: topHeight + controlPanelHeight,
               left: 0,
               right: 0,
-              height: 40,
+              height: draggerHeight,
               child: GestureDetector(
                 onVerticalDragUpdate: (details) {
                   setState(() {
@@ -79,18 +64,16 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio =
-                          ControlPanel().isMobile ? 0.20 : 0.11; // snap closed
+                      _splitRatio = ControlPanel().isMobile ? 0.20 : 0.11;
                     } else if (_splitRatio > _maxSplit) {
-                      _splitRatio = 1.0; // snap fully open
+                      _splitRatio = 1.0;
                     }
-                    // else keep where released
                   });
                 },
                 child: Center(
                   child: Container(
-                    width: 30, // narrow width
-                    height: 150, // tall height (adjust as needed)
+                    width: 30,
+                    height: 150,
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
@@ -98,11 +81,11 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                         top: Radius.circular(40),
                         bottom: Radius.circular(40),
                       ),
-                      boxShadow: [
+                      boxShadow: const [
                         BoxShadow(
                           color: Colors.black,
                           blurRadius: 4,
-                          offset: const Offset(0, 2),
+                          offset: Offset(0, 2),
                         ),
                       ],
                     ),
@@ -120,6 +103,18 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 ),
               ),
             ),
+
+            // Start and End time buttons (overlaid on map)
+            Positioned(
+              bottom: 16,
+              left: 16,
+              child: const TimelineStartDisplay(),
+            ),
+            Positioned(
+              bottom: 16,
+              right: 16,
+              child: const TimelineEndDisplay(),
+            ),
           ],
         );
       },
@@ -130,9 +125,11 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
     return SizedBox.expand(
       child: FlutterMap(
         options: MapOptions(
-          initialCenter: LatLng(52.370216, 4.895168), // Amsterdam
+          initialCenter: LatLng(52.370216, 4.895168),
           initialZoom: 13.0,
-          interactionOptions: InteractionOptions(flags: InteractiveFlag.all),
+          interactionOptions: const InteractionOptions(
+            flags: InteractiveFlag.all,
+          ),
         ),
         children: [
           TileLayer(
