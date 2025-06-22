@@ -33,6 +33,9 @@ final List<Event> mockEvents = [
     comments: [mockComments[0]],
     latitude: 37.7749,
     longitude: -122.4194,
+    tag: ['science', 'physics'],
+    isClustered: false,
+    clusterSize: null,
   ),
   Event(
     id: 'e2',
@@ -44,6 +47,9 @@ final List<Event> mockEvents = [
     comments: [mockComments[1]],
     latitude: 34.0522,
     longitude: -118.2437,
+    tag: ['biology'],
+    isClustered: true,
+    clusterSize: 3,
   ),
 ];
 
