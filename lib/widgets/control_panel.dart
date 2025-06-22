@@ -15,8 +15,9 @@ class ControlPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final double spacing = isMobile ? 4.0 : 8.0;
     final double fontSize = isMobile ? 13.0 : 16.0;
-    final double iconSize = isMobile ? 18.0 : 22.0; // Slightly smaller to fit
-    final double panelHeight = isMobile ? 70 : 85;
+    final double iconSize = isMobile ? 18.0 : 22.0;
+
+    final double panelHeight = isMobile ? 70 : 72; // <-- ADJUSTED HERE
 
     return Positioned(
       top: 0,
@@ -27,11 +28,11 @@ class ControlPanel extends StatelessWidget {
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: spacing),
           child: SizedBox(
-            height: panelHeight, // Keep fixed panel height
+            height: panelHeight,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Left side: Column with Search + Buttons
+                // Left side: Search + Buttons
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   child: SizedBox(
@@ -42,7 +43,7 @@ class ControlPanel extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         SizedBox(
-                          height: isMobile ? 28 : 38,
+                          height: isMobile ? 28 : 32,
                           child: TextField(
                             style: TextStyle(fontSize: fontSize),
                             decoration: InputDecoration(
@@ -65,9 +66,9 @@ class ControlPanel extends StatelessWidget {
 
                         SizedBox(height: spacing / 2),
 
-                        // Buttons Row
+                        // Buttons row
                         SizedBox(
-                          height: isMobile ? 26 : 30,
+                          height: isMobile ? 26 : 28,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -105,7 +106,7 @@ class ControlPanel extends StatelessWidget {
                   ),
                 ),
 
-                // Right side: Slider fills remaining space
+                // Right side: Time slider
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(right: isMobile ? 16 : 24),
