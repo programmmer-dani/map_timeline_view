@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
 
 class ControlPanel extends StatelessWidget {
   const ControlPanel({super.key});
@@ -12,7 +13,6 @@ class ControlPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //final double padding = isMobile ? 4.0 : 8.0;
     final double spacing = isMobile ? 4.0 : 8.0;
     final double fontSize = isMobile ? 11.0 : 14.0;
     final double iconSize = isMobile ? 18.0 : 24.0;
@@ -32,13 +32,13 @@ class ControlPanel extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.symmetric(
                   horizontal: isMobile ? 40.0 : 0.0,
-                ), // <- inset left/right more
+                ),
                 child: Row(
                   children: [
                     Expanded(
                       flex: 2,
                       child: SizedBox(
-                        height: isMobile ? 20 : 35, // <- shorter height
+                        height: isMobile ? 20 : 35,
                         child: TextField(
                           style: TextStyle(fontSize: fontSize),
                           decoration: InputDecoration(
@@ -47,7 +47,7 @@ class ControlPanel extends StatelessWidget {
                             filled: true,
                             fillColor: Colors.white,
                             isDense: true,
-                            contentPadding: EdgeInsets.symmetric(
+                            contentPadding: const EdgeInsets.symmetric(
                               horizontal: 6,
                               vertical: 2,
                             ),
@@ -62,16 +62,8 @@ class ControlPanel extends StatelessWidget {
                     SizedBox(width: spacing),
                     Expanded(
                       flex: 3,
-                      child: SliderTheme(
-                        data: SliderTheme.of(context).copyWith(
-                          trackHeight: 2,
-                          thumbShape: const RoundSliderThumbShape(
-                            enabledThumbRadius: 5.0,
-                          ),
-                          overlayShape: SliderComponentShape.noOverlay,
-                        ),
-                        child: Slider(value: 0.5, onChanged: (v) {}),
-                      ),
+                      // Replace this whole SliderTheme+Slider with your TimeSlider
+                      child: const TimeSlider(),
                     ),
                   ],
                 ),

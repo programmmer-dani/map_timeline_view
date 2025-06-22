@@ -2,11 +2,8 @@ import 'package:flutter/foundation.dart';
 
 /*
  * USAGE:
- * final timeline = Provider.of<TimelineRangeProvider>(context, listen: false);
- * timeline.setSelectedTime(DateTime.now());
+ * final timeline = Provider.of<TimelineRangeProvider>(context, listen: true);
  */
-
-
 
 class TimelineRangeProvider extends ChangeNotifier {
   DateTime _selectedTime;
@@ -17,14 +14,14 @@ class TimelineRangeProvider extends ChangeNotifier {
     required DateTime selectedTime,
     required DateTime visibleStart,
     required DateTime visibleEnd,
-  })  : _selectedTime = selectedTime,
-        _startingPoint = visibleStart,
-        _endingPoint = visibleEnd;
+  }) : _selectedTime = selectedTime,
+       _startingPoint = visibleStart,
+       _endingPoint = visibleEnd;
 
   // Getters
   DateTime get selectedTime => _selectedTime;
-  DateTime get visibleStart => _startingPoint;
-  DateTime get visibleEnd => _endingPoint;
+  DateTime get startingPoint => _startingPoint;
+  DateTime get endingPoint => _endingPoint;
 
   // Set selected time
   void setSelectedTime(DateTime newTime) {
@@ -42,12 +39,12 @@ class TimelineRangeProvider extends ChangeNotifier {
   // Set all three at once
   void updateAll({
     required DateTime selectedTime,
-    required DateTime visibleStart,
-    required DateTime visibleEnd,
+    required DateTime startingPoint,
+    required DateTime endingPoint,
   }) {
     _selectedTime = selectedTime;
-    _startingPoint = visibleStart;
-    _endingPoint = visibleEnd;
+    _startingPoint = startingPoint;
+    _endingPoint = endingPoint;
     notifyListeners();
   }
 }
