@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:map_timeline_view/providers/set_time_provider.dart';
 import 'package:provider/provider.dart';
@@ -19,11 +20,21 @@ class TimeSlider extends StatelessWidget {
         return LayoutBuilder(
           builder: (context, constraints) {
             final double sliderWidth = constraints.maxWidth;
-            final double relative = ((selected - start) / (end - start)).clamp(
-              0.0,
-              1.0,
+            final double thumbRelativeX = ((selected - start) / (end - start))
+                .clamp(0.0, 1.0);
+            final double estimatedLabelWidth =
+                100; // Estimate label width in pixels
+            final double margin = 4;
+
+            // Calculate desired label position (centered under thumb)
+            double desiredLeft =
+                (thumbRelativeX * sliderWidth) - estimatedLabelWidth / 2;
+
+            // Clamp so it doesn’t overflow left or right
+            double clampedLeft = math.max(
+              margin,
+              math.min(sliderWidth - estimatedLabelWidth - margin, desiredLeft),
             );
-            final double thumbX = relative * sliderWidth;
 
             return SizedBox(
               height: 70,
@@ -61,40 +72,37 @@ class TimeSlider extends StatelessWidget {
 
                   // Label below thumb
                   Positioned(
-                    left: thumbX - 50,
+                    left: clampedLeft,
                     bottom: 0,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
+                    child: Container(
+                      width: estimatedLabelWidth,
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 4,
+                        horizontal: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.black87,
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            _formatDate(provider.selectedTime),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.black87,
-                            borderRadius: BorderRadius.circular(4),
+                          Text(
+                            _formatTime(provider.selectedTime),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 10,
+                            ),
                           ),
-                          child: Column(
-                            children: [
-                              Text(
-                                _formatDate(provider.selectedTime),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                              Text(
-                                _formatTime(provider.selectedTime),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 10,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
