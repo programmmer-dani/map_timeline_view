@@ -22,38 +22,35 @@ class TimeSlider extends StatelessWidget {
             final double sliderWidth = constraints.maxWidth;
             final double thumbRelativeX = ((selected - start) / (end - start))
                 .clamp(0.0, 1.0);
-            final double estimatedLabelWidth =
-                100; // Estimate label width in pixels
+            final double estimatedLabelWidth = 90; // Slightly smaller label
             final double margin = 4;
 
-            // Calculate desired label position (centered under thumb)
             double desiredLeft =
                 (thumbRelativeX * sliderWidth) - estimatedLabelWidth / 2;
-
-            // Clamp so it doesn’t overflow left or right
             double clampedLeft = math.max(
               margin,
               math.min(sliderWidth - estimatedLabelWidth - margin, desiredLeft),
             );
 
             return SizedBox(
-              height: 70,
+              height: 50, // Reduced height
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  // Slider track
+                  // Slider
                   Positioned.fill(
                     top: 0,
-                    bottom: 25,
+                    bottom: 18,
                     child: SliderTheme(
                       data: SliderTheme.of(context).copyWith(
                         trackHeight: 2,
                         thumbShape: const RoundSliderThumbShape(
-                          enabledThumbRadius: 5,
+                          enabledThumbRadius: 4,
                         ),
                         overlayShape: SliderComponentShape.noOverlay,
+                        activeTrackColor:
+                            Colors.grey.shade400, // Unified track color
                         inactiveTrackColor: Colors.grey.shade400,
-                        activeTrackColor: Colors.white,
                         thumbColor: Colors.white,
                       ),
                       child: Slider(
@@ -70,19 +67,19 @@ class TimeSlider extends StatelessWidget {
                     ),
                   ),
 
-                  // Label below thumb
+                  // Label under thumb
                   Positioned(
                     left: clampedLeft,
                     bottom: 0,
                     child: Container(
                       width: estimatedLabelWidth,
                       padding: const EdgeInsets.symmetric(
-                        vertical: 4,
-                        horizontal: 6,
+                        vertical: 2,
+                        horizontal: 4,
                       ),
                       decoration: BoxDecoration(
                         color: Colors.black87,
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(3),
                       ),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
@@ -91,14 +88,14 @@ class TimeSlider extends StatelessWidget {
                             _formatDate(provider.selectedTime),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                           Text(
                             _formatTime(provider.selectedTime),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 10,
+                              fontSize: 9,
                             ),
                           ),
                         ],
