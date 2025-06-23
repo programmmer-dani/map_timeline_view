@@ -124,6 +124,8 @@ class MapWithSplitViewState extends State<MapWithSplitView> {
               child: _buildMap(),
             ),
 
+
+            // DRAGGER
             Positioned(
               top: topHeight,
               left: 0,
