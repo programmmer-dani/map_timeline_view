@@ -73,6 +73,29 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Optionally clearer separate select/deselect:
+  void selectGroup(String groupId) {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index == -1) return;
+
+    final group = _groups[index];
+    if (!group.isSelected) {
+      _groups[index] = group.copyWith(isSelected: true);
+      notifyListeners();
+    }
+  }
+
+  void deselectGroup(String groupId) {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index == -1) return;
+
+    final group = _groups[index];
+    if (group.isSelected) {
+      _groups[index] = group.copyWith(isSelected: false);
+      notifyListeners();
+    }
+  }
+
   // Load some initial mock data
   void loadMockData() {
     final user1 = User(id: 'u1', name: 'Alice');
@@ -82,8 +105,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     final user5 = User(id: 'u5', name: 'Eva');
 
     final now = DateTime.now();
-
-    // Create some example events with varying dates and types
 
     _groups.addAll([
       ResearchGroup(id: 'rg1', name: 'Hydrology Team', members: [user1, user2]),
