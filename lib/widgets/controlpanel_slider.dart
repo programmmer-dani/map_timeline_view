@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:map_timeline_view/providers/set_time_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:provider/provider.dart';
 
 class TimeSlider extends StatelessWidget {
