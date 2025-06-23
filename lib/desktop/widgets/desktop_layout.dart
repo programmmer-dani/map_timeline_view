@@ -29,7 +29,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
   }
 
   static const double controlPanelHeight = 78.0;
-  static const double bottomPanelHeight = 150.0; // Height of bottom panel area
+  static const double bottomPanelHeight = 225.0; // 1.5 times bigger than before
 
   @override
   Widget build(BuildContext context) {
@@ -41,16 +41,19 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
       builder: (context, constraints) {
         final availableHeight = constraints.maxHeight;
 
+        // Calculate the height for the SplitView area by subtracting control panel and bottom panels
         final mainHeight =
             availableHeight - controlPanelHeight - bottomPanelHeight;
 
         return Column(
           children: [
+            // Control Panel on top
             SizedBox(
               height: controlPanelHeight,
               child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
             ),
 
+            // Main content: SplitView with TimelineView and MapView
             SizedBox(
               height: mainHeight,
               child: SplitView(
@@ -73,6 +76,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
               ),
             ),
 
+            // Bottom panels arranged horizontally with expanded space
             SizedBox(
               height: bottomPanelHeight,
               child: Row(
