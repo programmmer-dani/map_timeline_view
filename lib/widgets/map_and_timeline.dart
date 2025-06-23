@@ -127,7 +127,7 @@ class MapWithSplitViewState extends State<MapWithSplitView> {
 
             // DRAGGER
             Positioned(
-              top: topHeight,
+              top: topHeight + controlPanelHeight + halfDraggerHeight,
               left: 0,
               right: 0,
               height: draggerHeight,
