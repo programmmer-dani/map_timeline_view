@@ -73,26 +73,53 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Optionally clearer separate select/deselect:
+  void selectGroup(String groupId) {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index == -1) return;
+
+    final group = _groups[index];
+    if (!group.isSelected) {
+      _groups[index] = group.copyWith(isSelected: true);
+      notifyListeners();
+    }
+  }
+
+  void deselectGroup(String groupId) {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index == -1) return;
+
+    final group = _groups[index];
+    if (group.isSelected) {
+      _groups[index] = group.copyWith(isSelected: false);
+      notifyListeners();
+    }
+  }
+
   // Load some initial mock data
   void loadMockData() {
     final user1 = User(id: 'u1', name: 'Alice');
     final user2 = User(id: 'u2', name: 'Bob');
     final user3 = User(id: 'u3', name: 'Carla');
+    final user4 = User(id: 'u4', name: 'David');
+    final user5 = User(id: 'u5', name: 'Eva');
 
-    final mockEvents = <Event>[];
+    final now = DateTime.now();
 
     _groups.addAll([
+      ResearchGroup(id: 'rg1', name: 'Hydrology Team', members: [user1, user2]),
+      ResearchGroup(id: 'rg2', name: 'Seismic Analysis', members: [user3]),
+      ResearchGroup(id: 'rg3', name: 'Wildfire Watch', members: [user4]),
+      ResearchGroup(id: 'rg4', name: 'Meteorology Unit', members: [user5]),
       ResearchGroup(
-        id: 'rg1',
-        name: 'Hydrology Team',
-        members: [user1, user2],
-        events: mockEvents,
+        id: 'rg5',
+        name: 'Environmental Sensors',
+        members: [user1, user5],
       ),
       ResearchGroup(
-        id: 'rg2',
-        name: 'Seismic Analysis',
-        members: [user3],
-        events: mockEvents,
+        id: 'rg6',
+        name: 'Geology Experts',
+        members: [user2, user3],
       ),
     ]);
 

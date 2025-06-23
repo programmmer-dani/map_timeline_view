@@ -10,6 +10,10 @@ import 'package:provider/provider.dart';
 import 'pages/login_page.dart';
 
 void main() async {
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Container(); // or return a custom widget if you prefer
+  };
+
   WidgetsFlutterBinding.ensureInitialized();
 
   await SystemChrome.setPreferredOrientations([

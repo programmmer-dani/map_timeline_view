@@ -6,7 +6,7 @@ class ResearchGroup {
   final String name;
   final List<User> members;
   final List<Event> events;
-  final bool isSelected;
+  bool isSelected;
 
   ResearchGroup({
     required this.id,
@@ -14,8 +14,8 @@ class ResearchGroup {
     List<User>? members,
     List<Event>? events,
     this.isSelected = true,
-  })  : members = members ?? [],
-        events = events ?? [];
+  }) : members = members ?? [],
+       events = events ?? [];
 
   ResearchGroup copyWith({
     String? id,
