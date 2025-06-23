@@ -10,15 +10,14 @@ import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:map_timeline_view/widgets/timeline.dart';
 import 'package:provider/provider.dart';
 
-// ✅ Add missing StatefulWidget declaration
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
 
   @override
-  State<MapWithSplitView> createState() => _MapWithSplitViewState();
+  State<MapWithSplitView> createState() => MapWithSplitViewState();
 }
 
-class _MapWithSplitViewState extends State<MapWithSplitView> {
+class MapWithSplitViewState extends State<MapWithSplitView> {
   final double controlPanelHeight = 78.0;
   double _splitRatio = 1.0;
   final double _minSplit = 0.47;
@@ -32,10 +31,10 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) => _recalculateMarkers());
+    WidgetsBinding.instance.addPostFrameCallback((_) => recalculateMarkers());
   }
 
-  void _recalculateMarkers() {
+  void recalculateMarkers() {
     final camera = _mapController.camera;
     final bounds = camera.visibleBounds;
     final groupProvider = context.read<ResearchGroupsProvider>();
@@ -49,8 +48,8 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
       for (final event in group.events) {
         final isWithinTime =
-            selectedTime.isAfter(event.start) &&
-            selectedTime.isBefore(event.end);
+            !selectedTime.isBefore(event.start) &&
+            !selectedTime.isAfter(event.end);
         final isWithinBounds = bounds.contains(
           LatLng(event.latitude, event.longitude),
         );
@@ -74,11 +73,10 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   }
 
   void _onMapInteraction(MapEvent event) {
-    // ✅ Debounce interaction to avoid excessive updates
     _debounceTimer?.cancel();
     _debounceTimer = Timer(
       const Duration(milliseconds: 200),
-      _recalculateMarkers,
+      recalculateMarkers,
     );
   }
 
@@ -93,23 +91,33 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
     final double draggerHeight = 40;
     final double halfDraggerHeight = draggerHeight / 2;
 
+    final isMobile = ControlPanel().isMobile;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final height = constraints.maxHeight;
         final mapHeight = _splitRatio * height;
-        final topHeight = height - mapHeight - 20;
+        final topHeight = height - mapHeight - draggerHeight;
 
         return Stack(
           children: [
             if (_splitRatio < 1.0)
-              TimelineView(
-                researchGroups: ['Group A', 'Group B'],
-                visibleStart: DateTime.now().subtract(const Duration(hours: 1)),
-                visibleEnd: DateTime.now().add(const Duration(hours: 1)),
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: topHeight,
+                child: TimelineView(
+                  researchGroups: ['Group A', 'Group B'], // Update accordingly
+                  visibleStart: DateTime.now().subtract(
+                    const Duration(hours: 1),
+                  ),
+                  visibleEnd: DateTime.now().add(const Duration(hours: 1)),
+                ),
               ),
 
             Positioned(
-              top: topHeight + controlPanelHeight + halfDraggerHeight,
+              top: topHeight + draggerHeight,
               left: 0,
               right: 0,
               height: mapHeight,
@@ -117,7 +125,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
             ),
 
             Positioned(
-              top: topHeight + controlPanelHeight,
+              top: topHeight,
               left: 0,
               right: 0,
               height: draggerHeight,
@@ -125,13 +133,13 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(-0.8, 1.0);
+                    _splitRatio = _splitRatio.clamp(_minSplit, 1.0);
                   });
                 },
                 onVerticalDragEnd: (details) {
                   setState(() {
                     if (_splitRatio < _minSplit) {
-                      _splitRatio = ControlPanel().isMobile ? 0.20 : 0.11;
+                      _splitRatio = isMobile ? 0.20 : 0.11;
                     } else if (_splitRatio > _maxSplit) {
                       _splitRatio = 1.0;
                     }
@@ -140,7 +148,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 child: Center(
                   child: Container(
                     width: 30,
-                    height: 150,
+                    height: draggerHeight * 3.5,
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: Colors.grey.shade300,
@@ -150,7 +158,7 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                       ),
                       boxShadow: const [
                         BoxShadow(
-                          color: Colors.black,
+                          color: Colors.black26,
                           blurRadius: 4,
                           offset: Offset(0, 2),
                         ),
@@ -193,10 +201,8 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
       options: MapOptions(
         initialCenter: LatLng(52.370216, 4.895168),
         initialZoom: 13.0,
-        interactionOptions: const InteractionOptions(
-          flags: InteractiveFlag.all,
-        ),
-        onMapEvent: _onMapInteraction, // ✅ Updated listener
+        interactiveFlags: InteractiveFlag.all,
+        onMapEvent: _onMapInteraction,
       ),
       children: [
         TileLayer(

@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 import '../../widgets/map_and_timeline.dart';
-import '../../widgets/control_panel.dart'; // import ControlPanel
+import '../../widgets/control_panel.dart';
 
-class DesktopMapLayout extends StatelessWidget {
+class DesktopMapLayout extends StatefulWidget {
   const DesktopMapLayout({super.key});
+
+  @override
+  State<DesktopMapLayout> createState() => _DesktopMapLayoutState();
+}
+
+class _DesktopMapLayoutState extends State<DesktopMapLayout> {
+  final GlobalKey<MapWithSplitViewState> mapKey = GlobalKey<MapWithSplitViewState>();
 
   bool get isDesktop =>
       ![
@@ -14,18 +20,20 @@ class DesktopMapLayout extends StatelessWidget {
         TargetPlatform.fuchsia,
       ].contains(defaultTargetPlatform);
 
+  void _onTimeSliderChanged(DateTime newTime) {
+    mapKey.currentState?.recalculateMarkers();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) {
-      // Fallback if someone uses this on mobile
+      // Fallback if not desktop
       return const Center(child: Text('Desktop layout only'));
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        //final width = constraints.maxWidth;
         final height = constraints.maxHeight;
-
         final bottomPanelHeight = height * 0.25;
         final mainHeight = height - bottomPanelHeight;
 
@@ -33,22 +41,18 @@ class DesktopMapLayout extends StatelessWidget {
           children: [
             Row(
               children: [
-                // Main content: Map + bottom panels
                 Expanded(
                   child: Column(
                     children: [
-                      // Map area takes top 75%
                       SizedBox(
                         height: mainHeight,
-                        child: const MapWithSplitView(),
+                        child: MapWithSplitView(key: mapKey),
                       ),
 
-                      // Bottom 25% panel split horizontally
                       SizedBox(
                         height: bottomPanelHeight,
                         child: Row(
                           children: [
-                            // Left half: Filter settings panel + Notification panel
                             Expanded(
                               flex: 1,
                               child: Row(
@@ -65,8 +69,6 @@ class DesktopMapLayout extends StatelessWidget {
                                       ),
                                     ),
                                   ),
-
-                                  // Notification panel (left half of left side)
                                   Expanded(
                                     flex: 1,
                                     child: Container(
@@ -82,13 +84,10 @@ class DesktopMapLayout extends StatelessWidget {
                                 ],
                               ),
                             ),
-
-                            // Right half: Notification panel + Event preview
                             Expanded(
                               flex: 1,
                               child: Row(
                                 children: [
-                                  // Event preview placeholder (right half of right side)
                                   Expanded(
                                     flex: 1,
                                     child: Container(
@@ -113,8 +112,13 @@ class DesktopMapLayout extends StatelessWidget {
               ],
             ),
 
-            // Floating ControlPanel on top
-            const Positioned(top: 0, left: 0, right: 0, child: ControlPanel()),
+            // Floating control panel
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
+            ),
           ],
         );
       },
