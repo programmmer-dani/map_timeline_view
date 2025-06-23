@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
-import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
-import 'package:provider/provider.dart';
-
 import '../../widgets/map_view.dart';
-import '../../widgets/timeline.dart';
+import '../../widgets/timeline_widget.dart';
 import '../../widgets/split_view.dart';
 import '../../widgets/control_panel.dart';
 
@@ -58,13 +55,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
                 maxSplitRatio: 0.9,
                 draggerHeight: 40,
                 isMobile: false,
-                topChild: TimelineView(
-                  researchGroups: const ['Group A', 'Group B'],
-                  visibleStart: DateTime.now().subtract(
-                    const Duration(hours: 1),
-                  ),
-                  visibleEnd: DateTime.now().add(const Duration(hours: 1)),
-                ),
+                topChild: TimelineView(),
                 bottomChild: MapView(),
                 startSelector: const TimelineStartDisplay(),
                 endSelector: const TimelineEndDisplay(),

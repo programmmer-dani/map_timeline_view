@@ -3,7 +3,7 @@ import 'package:map_timeline_view/widgets/control_panel.dart';
 import 'package:map_timeline_view/widgets/split_view.dart';
 import 'package:map_timeline_view/widgets/map_view.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
-import 'package:map_timeline_view/widgets/timeline.dart';
+import 'package:map_timeline_view/widgets/timeline_widget.dart';
 
 class PhoneMapLayout extends StatefulWidget {
   const PhoneMapLayout({super.key});
@@ -13,7 +13,6 @@ class PhoneMapLayout extends StatefulWidget {
 }
 
 class _PhoneMapLayoutState extends State<PhoneMapLayout> {
-
   static const double controlPanelHeight = 78.0;
 
   @override
@@ -21,18 +20,11 @@ class _PhoneMapLayoutState extends State<PhoneMapLayout> {
     return SafeArea(
       child: Column(
         children: [
-          SizedBox(
-            height: controlPanelHeight,
-            child: ControlPanel(),
-          ),
+          SizedBox(height: controlPanelHeight, child: ControlPanel()),
 
           Expanded(
             child: SplitView(
-              topChild: TimelineView(
-                researchGroups: ['Group A', 'Group B'],
-                visibleStart: DateTime.now().subtract(const Duration(hours: 1)),
-                visibleEnd: DateTime.now().add(const Duration(hours: 1)),
-              ),
+              topChild: TimelineView(),
               bottomChild: MapView(),
               startSelector: const TimelineStartDisplay(),
               endSelector: const TimelineEndDisplay(),

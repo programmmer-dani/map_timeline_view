@@ -78,21 +78,27 @@ class ResearchGroupsProvider extends ChangeNotifier {
     final user1 = User(id: 'u1', name: 'Alice');
     final user2 = User(id: 'u2', name: 'Bob');
     final user3 = User(id: 'u3', name: 'Carla');
+    final user4 = User(id: 'u4', name: 'David');
+    final user5 = User(id: 'u5', name: 'Eva');
 
-    final mockEvents = <Event>[];
+    final now = DateTime.now();
+
+    // Create some example events with varying dates and types
 
     _groups.addAll([
+      ResearchGroup(id: 'rg1', name: 'Hydrology Team', members: [user1, user2]),
+      ResearchGroup(id: 'rg2', name: 'Seismic Analysis', members: [user3]),
+      ResearchGroup(id: 'rg3', name: 'Wildfire Watch', members: [user4]),
+      ResearchGroup(id: 'rg4', name: 'Meteorology Unit', members: [user5]),
       ResearchGroup(
-        id: 'rg1',
-        name: 'Hydrology Team',
-        members: [user1, user2],
-        events: mockEvents,
+        id: 'rg5',
+        name: 'Environmental Sensors',
+        members: [user1, user5],
       ),
       ResearchGroup(
-        id: 'rg2',
-        name: 'Seismic Analysis',
-        members: [user3],
-        events: mockEvents,
+        id: 'rg6',
+        name: 'Geology Experts',
+        members: [user2, user3],
       ),
     ]);
 
