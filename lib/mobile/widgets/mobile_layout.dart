@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:map_timeline_view/widgets/control_panel.dart';
-import 'package:map_timeline_view/widgets/map_and_timeline.dart';
+import 'package:map_timeline_view/widgets/split_view.dart';
+import 'package:map_timeline_view/widgets/map_view.dart';
+import 'package:map_timeline_view/widgets/timeline.dart';
 
 class PhoneMapLayout extends StatefulWidget {
   const PhoneMapLayout({super.key});
@@ -10,21 +12,36 @@ class PhoneMapLayout extends StatefulWidget {
 }
 
 class _PhoneMapLayoutState extends State<PhoneMapLayout> {
-  // GlobalKey to access MapWithSplitView state
-  final GlobalKey<MapWithSplitViewState> mapKey = GlobalKey<MapWithSplitViewState>();
+  final GlobalKey<MapViewState> mapKey = GlobalKey<MapViewState>();
 
   void _onTimeSliderChanged(DateTime newTime) {
-    // Trigger marker recalculation on map when time changes
     mapKey.currentState?.recalculateMarkers();
   }
 
+  static const double controlPanelHeight = 78.0;
+
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        MapWithSplitView(key: mapKey),
-        ControlPanel(onTimeChanged: _onTimeSliderChanged),
-      ],
+    return SafeArea(
+      child: Column(
+        children: [
+          SizedBox(
+            height: controlPanelHeight,
+            child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
+          ),
+
+          Expanded(
+            child: SplitView(
+              topChild: TimelineView(
+                researchGroups: ['Group A', 'Group B'],
+                visibleStart: DateTime.now().subtract(Duration(hours: 1)),
+                visibleEnd: DateTime.now().add(Duration(hours: 1)),
+              ),
+              bottomChild: MapView(key: mapKey),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

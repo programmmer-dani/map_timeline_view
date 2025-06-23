@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
-import '../../widgets/map_and_timeline.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
+
+import '../../widgets/map_view.dart';
+import '../../widgets/timeline.dart';
+import '../../widgets/split_view.dart';
 import '../../widgets/control_panel.dart';
 
 class DesktopMapLayout extends StatefulWidget {
@@ -11,7 +15,7 @@ class DesktopMapLayout extends StatefulWidget {
 }
 
 class _DesktopMapLayoutState extends State<DesktopMapLayout> {
-  final GlobalKey<MapWithSplitViewState> mapKey = GlobalKey<MapWithSplitViewState>();
+  final GlobalKey<MapViewState> mapKey = GlobalKey<MapViewState>();
 
   bool get isDesktop =>
       ![
@@ -24,100 +28,90 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
     mapKey.currentState?.recalculateMarkers();
   }
 
+  static const double controlPanelHeight = 78.0;
+  static const double bottomPanelHeight = 150.0; // Height of bottom panel area
+
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) {
-      // Fallback if not desktop
       return const Center(child: Text('Desktop layout only'));
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final height = constraints.maxHeight;
-        final bottomPanelHeight = height * 0.25;
-        final mainHeight = height - bottomPanelHeight;
+        final availableHeight = constraints.maxHeight;
 
-        return Stack(
+        final mainHeight =
+            availableHeight - controlPanelHeight - bottomPanelHeight;
+
+        return Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: mainHeight,
-                        child: MapWithSplitView(key: mapKey),
-                      ),
-
-                      SizedBox(
-                        height: bottomPanelHeight,
-                        child: Row(
-                          children: [
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.blue.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Filter Settings Panel',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.green.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Notification Panel',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.orange.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Event Preview Placeholder',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            SizedBox(
+              height: controlPanelHeight,
+              child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
             ),
 
-            // Floating control panel
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
+            SizedBox(
+              height: mainHeight,
+              child: SplitView(
+                key: mapKey,
+                initialSplitRatio: 0.85,
+                minSplitRatio: 0.4,
+                maxSplitRatio: 0.9,
+                draggerHeight: 40,
+                isMobile: false,
+                topChild: TimelineView(
+                  researchGroups: const ['Group A', 'Group B'],
+                  visibleStart: DateTime.now().subtract(
+                    const Duration(hours: 1),
+                  ),
+                  visibleEnd: DateTime.now().add(const Duration(hours: 1)),
+                ),
+                bottomChild: MapView(
+                  onMapEvent: (_) => mapKey.currentState?.recalculateMarkers(),
+                ),
+              ),
+            ),
+
+            SizedBox(
+              height: bottomPanelHeight,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: Colors.blue.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Filter Settings Panel',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.green.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Notification Panel',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.orange.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Event Preview Placeholder',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         );
