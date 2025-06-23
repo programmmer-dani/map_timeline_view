@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 
 import '../../widgets/map_view.dart';
 import '../../widgets/timeline.dart';
@@ -53,7 +54,6 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
               child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
             ),
 
-            // Main content: SplitView with TimelineView and MapView
             SizedBox(
               height: mainHeight,
               child: SplitView(
@@ -73,6 +73,8 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
                 bottomChild: MapView(
                   onMapEvent: (_) => mapKey.currentState?.recalculateMarkers(),
                 ),
+                startSelector: const TimelineStartDisplay(),
+                endSelector: const TimelineEndDisplay(),
               ),
             ),
 

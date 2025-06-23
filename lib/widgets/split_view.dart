@@ -9,8 +9,8 @@ class SplitView extends StatefulWidget {
   final double draggerHeight;
   final bool isMobile;
 
-  final Widget? startSelector;
-  final Widget? endSelector;
+  final Widget startSelector;
+  final Widget endSelector;
 
   const SplitView({
     Key? key,
@@ -21,8 +21,8 @@ class SplitView extends StatefulWidget {
     this.maxSplitRatio = 0.7,
     this.draggerHeight = 40,
     this.isMobile = false,
-    this.startSelector,
-    this.endSelector,
+    required this.startSelector,
+    required this.endSelector,
   }) : super(key: key);
 
   @override
@@ -131,27 +131,25 @@ class _SplitViewState extends State<SplitView> {
               ),
             ),
 
-            // Start selector overlay (bottom left)
-            if (widget.startSelector != null)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                child: SafeArea(
-                  minimum: const EdgeInsets.only(left: 16, bottom: 16),
-                  child: widget.startSelector!,
-                ),
+            // Start selector overlay (bottom left) — always visible and overlaps everything
+            Positioned(
+              bottom: 0,
+              left: 0,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(left: 16, bottom: 16),
+                child: widget.startSelector,
               ),
+            ),
 
-            // End selector overlay (bottom right)
-            if (widget.endSelector != null)
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: SafeArea(
-                  minimum: const EdgeInsets.only(right: 16, bottom: 16),
-                  child: widget.endSelector!,
-                ),
+            // End selector overlay (bottom right) — always visible and overlaps everything
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: SafeArea(
+                minimum: const EdgeInsets.only(right: 16, bottom: 16),
+                child: widget.endSelector,
               ),
+            ),
           ],
         );
       },
