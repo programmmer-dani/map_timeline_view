@@ -1,14 +1,16 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:map_timeline_view/entities/event_type.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/control_panel.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:map_timeline_view/widgets/timeline.dart';
 import 'package:provider/provider.dart';
-import 'package:map_timeline_view/entities/event_type.dart';
 
+// ✅ Add missing StatefulWidget declaration
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
 
@@ -23,6 +25,68 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   final double _maxSplit = 0.7;
 
   final MapController _mapController = MapController();
+  List<Marker> _markers = [];
+
+  Timer? _debounceTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _recalculateMarkers());
+  }
+
+  void _recalculateMarkers() {
+    final camera = _mapController.camera;
+    final bounds = camera.visibleBounds;
+    final groupProvider = context.read<ResearchGroupsProvider>();
+    final timeProvider = context.read<TimelineRangeProvider>();
+    final selectedTime = timeProvider.selectedTime;
+
+    final newMarkers = <Marker>[];
+
+    for (final group in groupProvider.groups) {
+      if (!group.isSelected) continue;
+
+      for (final event in group.events) {
+        final isWithinTime =
+            selectedTime.isAfter(event.start) &&
+            selectedTime.isBefore(event.end);
+        final isWithinBounds = bounds.contains(
+          LatLng(event.latitude, event.longitude),
+        );
+
+        if (isWithinTime && isWithinBounds) {
+          newMarkers.add(
+            Marker(
+              width: 30,
+              height: 30,
+              point: LatLng(event.latitude, event.longitude),
+              child: _getEventIcon(event.type),
+            ),
+          );
+        }
+      }
+    }
+
+    setState(() {
+      _markers = newMarkers;
+    });
+  }
+
+  void _onMapInteraction(MapEvent event) {
+    // ✅ Debounce interaction to avoid excessive updates
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(
+      const Duration(milliseconds: 200),
+      _recalculateMarkers,
+    );
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -132,50 +196,14 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
         interactionOptions: const InteractionOptions(
           flags: InteractiveFlag.all,
         ),
+        onMapEvent: _onMapInteraction, // ✅ Updated listener
       ),
       children: [
         TileLayer(
           urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
           userAgentPackageName: 'com.example.map_timeline_view',
         ),
-        Builder(
-          builder: (context) {
-            final camera = MapCamera.of(context);
-            final bounds = camera.visibleBounds;
-
-            final groupProvider = context.watch<ResearchGroupsProvider>();
-            final timeProvider = context.watch<TimelineRangeProvider>();
-            final selectedTime = timeProvider.selectedTime;
-
-            final markers = <Marker>[];
-
-            for (final group in groupProvider.groups) {
-              if (!group.isSelected) continue;
-
-              for (final event in group.events) {
-                final isWithinTime =
-                    selectedTime.isAfter(event.start) &&
-                    selectedTime.isBefore(event.end);
-                final isWithinBounds = bounds.contains(
-                  LatLng(event.latitude, event.longitude),
-                );
-
-                if (isWithinTime && isWithinBounds) {
-                  markers.add(
-                    Marker(
-                      width: 30,
-                      height: 30,
-                      point: LatLng(event.latitude, event.longitude),
-                      child: _getEventIcon(event.type),
-                    ),
-                  );
-                }
-              }
-            }
-
-            return MarkerLayer(markers: markers);
-          },
-        ),
+        MarkerLayer(markers: _markers),
       ],
     );
   }
