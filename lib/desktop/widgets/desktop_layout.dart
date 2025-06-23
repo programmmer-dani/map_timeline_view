@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
+import 'package:provider/provider.dart';
 
 import '../../widgets/map_view.dart';
 import '../../widgets/timeline.dart';
@@ -25,10 +27,6 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
         TargetPlatform.fuchsia,
       ].contains(defaultTargetPlatform);
 
-  void _onTimeSliderChanged(DateTime newTime) {
-    mapKey.currentState?.recalculateMarkers();
-  }
-
   static const double controlPanelHeight = 88.0;
   static const double bottomPanelHeight = 225.0; // 1.5 times bigger than before
 
@@ -49,10 +47,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
         return Column(
           children: [
             // Control Panel on top
-            SizedBox(
-              height: controlPanelHeight,
-              child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
-            ),
+            SizedBox(height: controlPanelHeight, child: ControlPanel()),
 
             SizedBox(
               height: mainHeight,
@@ -70,9 +65,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
                   ),
                   visibleEnd: DateTime.now().add(const Duration(hours: 1)),
                 ),
-                bottomChild: MapView(
-                  onMapEvent: (_) => mapKey.currentState?.recalculateMarkers(),
-                ),
+                bottomChild: MapView(),
                 startSelector: const TimelineStartDisplay(),
                 endSelector: const TimelineEndDisplay(),
               ),

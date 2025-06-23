@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
+import 'package:provider/provider.dart';
 
 class ControlPanel extends StatefulWidget {
-  final ValueChanged<DateTime>? onTimeChanged;
-
-  const ControlPanel({super.key, this.onTimeChanged});
+  const ControlPanel({super.key});
 
   bool get isMobile {
     return defaultTargetPlatform == TargetPlatform.iOS ||
@@ -29,10 +30,12 @@ class _ControlPanelState extends State<ControlPanel> {
   void _handleTimeChanged(DateTime newTime) {
     setState(() {
       _selectedTime = newTime;
+      final markerProvider = Provider.of<MapMarkerProvider>(
+        context,
+        listen: false,
+      );
+      markerProvider.recalculateMarkers();
     });
-    if (widget.onTimeChanged != null) {
-      widget.onTimeChanged!(newTime);
-    }
   }
 
   @override
@@ -76,7 +79,10 @@ class _ControlPanelState extends State<ControlPanel> {
                               filled: true,
                               fillColor: Colors.white,
                               isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(4),
                                 borderSide: BorderSide.none,
@@ -92,7 +98,11 @@ class _ControlPanelState extends State<ControlPanel> {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.add, color: Colors.white, size: iconSize),
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: iconSize,
+                                ),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: () {},
@@ -101,7 +111,11 @@ class _ControlPanelState extends State<ControlPanel> {
                                 Padding(
                                   padding: EdgeInsets.only(left: spacing),
                                   child: IconButton(
-                                    icon: Icon(Icons.filter_alt, color: Colors.white, size: iconSize),
+                                    icon: Icon(
+                                      Icons.filter_alt,
+                                      color: Colors.white,
+                                      size: iconSize,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {},
@@ -111,7 +125,11 @@ class _ControlPanelState extends State<ControlPanel> {
                                 Padding(
                                   padding: EdgeInsets.only(left: spacing),
                                   child: IconButton(
-                                    icon: Icon(Icons.notifications, color: Colors.white, size: iconSize),
+                                    icon: Icon(
+                                      Icons.notifications,
+                                      color: Colors.white,
+                                      size: iconSize,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {},

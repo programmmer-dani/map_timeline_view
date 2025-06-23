@@ -13,11 +13,6 @@ class PhoneMapLayout extends StatefulWidget {
 }
 
 class _PhoneMapLayoutState extends State<PhoneMapLayout> {
-  final GlobalKey<MapViewState> mapKey = GlobalKey<MapViewState>();
-
-  void _onTimeSliderChanged(DateTime newTime) {
-    mapKey.currentState?.recalculateMarkers();
-  }
 
   static const double controlPanelHeight = 78.0;
 
@@ -28,7 +23,7 @@ class _PhoneMapLayoutState extends State<PhoneMapLayout> {
         children: [
           SizedBox(
             height: controlPanelHeight,
-            child: ControlPanel(onTimeChanged: _onTimeSliderChanged),
+            child: ControlPanel(),
           ),
 
           Expanded(
@@ -38,7 +33,7 @@ class _PhoneMapLayoutState extends State<PhoneMapLayout> {
                 visibleStart: DateTime.now().subtract(const Duration(hours: 1)),
                 visibleEnd: DateTime.now().add(const Duration(hours: 1)),
               ),
-              bottomChild: MapView(key: mapKey),
+              bottomChild: MapView(),
               startSelector: const TimelineStartDisplay(),
               endSelector: const TimelineEndDisplay(),
             ),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
+import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
-import 'package:provider/provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:flutter_map/flutter_map.dart'; // <== for MapController
+import 'package:provider/provider.dart';
+
 import 'pages/login_page.dart';
 
 void main() async {
@@ -19,7 +22,7 @@ void main() async {
   final DateTime end = DateTime.now();
   final DateTime selected = now;
 
-  // Initialize providers
+  // Initialize core providers
   final timelineProvider = TimelineRangeProvider(
     selectedTime: selected,
     visibleStart: start,
@@ -32,6 +35,8 @@ void main() async {
   final eventsProvider = EventsProvider();
   eventsProvider.loadMockData(researchGroupsProvider);
 
+  final mapController = MapController(); // <== create MapController
+
   runApp(
     MultiProvider(
       providers: [
@@ -41,6 +46,16 @@ void main() async {
         ChangeNotifierProvider<EventsProvider>.value(value: eventsProvider),
         ChangeNotifierProvider<ResearchGroupsProvider>.value(
           value: researchGroupsProvider,
+        ),
+
+        /// 💡 Register MapMarkerProvider **after** its dependencies
+        ChangeNotifierProvider<MapMarkerProvider>(
+          create:
+              (_) => MapMarkerProvider(
+                mapController: mapController,
+                groupProvider: researchGroupsProvider,
+                timeProvider: timelineProvider,
+              ),
         ),
       ],
       child: const MainApp(),
