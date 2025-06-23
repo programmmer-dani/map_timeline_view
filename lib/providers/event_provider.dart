@@ -30,7 +30,7 @@ class EventsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void loadMockData(ResearchGroupsProvider groupsProvider) {
+void loadMockData(ResearchGroupsProvider groupsProvider) {
   final user1 = User(id: 'u1', name: 'Alice');
   final user2 = User(id: 'u2', name: 'Luca');
 
@@ -82,18 +82,31 @@ class EventsProvider extends ChangeNotifier {
     type: EventType.fire,
   );
 
-  _events.addAll([event1, event2, event3, event4]);
+  final event5 = Event(
+    id: 'event5',
+    title: 'Amsterdam storm wojchek ',
+    author: user1,
+    start: DateTime(2025, 6, 22, 0, 0),
+    end: DateTime(2025, 6, 22, 23, 59),
+    data: 'A storm called wojtchek appeared',
+    latitude: 52.3702,
+    longitude: 4.8952,
+    type: EventType.storm, // Use a fitting type here
+  );
 
-  // Assuming research groups exist, add events to them:
-  // Example: add event1 and event2 to the first group, event3 and event4 to the second
+  _events.addAll([event1, event2, event3, event4, event5]);
+
+  // Assign events to groups
   if (groupsProvider.groups.length >= 2) {
     groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event1);
     groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2);
     groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event3);
     groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event4);
+    groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event5); // New event assigned here
   }
 
   notifyListeners();
 }
+
 
 }

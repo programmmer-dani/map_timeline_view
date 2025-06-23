@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:map_timeline_view/providers/researchgroup_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/control_panel.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:map_timeline_view/widgets/timeline.dart';
+import 'package:provider/provider.dart';
+import 'package:map_timeline_view/entities/event_type.dart';
 
 class MapWithSplitView extends StatefulWidget {
   const MapWithSplitView({super.key});
@@ -18,6 +22,8 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   final double _minSplit = 0.47;
   final double _maxSplit = 0.7;
 
+  final MapController _mapController = MapController();
+
   @override
   Widget build(BuildContext context) {
     final double draggerHeight = 40;
@@ -31,7 +37,6 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
 
         return Stack(
           children: [
-            // Top timeline view
             if (_splitRatio < 1.0)
               TimelineView(
                 researchGroups: ['Group A', 'Group B'],
@@ -39,7 +44,6 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
                 visibleEnd: DateTime.now().add(const Duration(hours: 1)),
               ),
 
-            // Map view
             Positioned(
               top: topHeight + controlPanelHeight + halfDraggerHeight,
               left: 0,
@@ -48,7 +52,6 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
               child: _buildMap(),
             ),
 
-            // Drag handle
             Positioned(
               top: topHeight + controlPanelHeight,
               left: 0,
@@ -104,7 +107,6 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
               ),
             ),
 
-            // Start and End time buttons (overlaid on map)
             Positioned(
               bottom: 16,
               left: 16,
@@ -122,23 +124,88 @@ class _MapWithSplitViewState extends State<MapWithSplitView> {
   }
 
   Widget _buildMap() {
-    return SizedBox.expand(
-      child: FlutterMap(
-        options: MapOptions(
-          initialCenter: LatLng(52.370216, 4.895168),
-          initialZoom: 13.0,
-          interactionOptions: const InteractionOptions(
-            flags: InteractiveFlag.all,
-          ),
+    return FlutterMap(
+      mapController: _mapController,
+      options: MapOptions(
+        initialCenter: LatLng(52.370216, 4.895168),
+        initialZoom: 13.0,
+        interactionOptions: const InteractionOptions(
+          flags: InteractiveFlag.all,
         ),
-        children: [
-          TileLayer(
-            urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-            userAgentPackageName: 'com.example.map_timeline_view',
-          ),
-          const MarkerLayer(markers: []),
-        ],
       ),
+      children: [
+        TileLayer(
+          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          userAgentPackageName: 'com.example.map_timeline_view',
+        ),
+        Builder(
+          builder: (context) {
+            final camera = MapCamera.of(context);
+            final bounds = camera.visibleBounds;
+
+            final groupProvider = context.watch<ResearchGroupsProvider>();
+            final timeProvider = context.watch<TimelineRangeProvider>();
+            final selectedTime = timeProvider.selectedTime;
+
+            final markers = <Marker>[];
+
+            for (final group in groupProvider.groups) {
+              if (!group.isSelected) continue;
+
+              for (final event in group.events) {
+                final isWithinTime =
+                    selectedTime.isAfter(event.start) &&
+                    selectedTime.isBefore(event.end);
+                final isWithinBounds = bounds.contains(
+                  LatLng(event.latitude, event.longitude),
+                );
+
+                if (isWithinTime && isWithinBounds) {
+                  markers.add(
+                    Marker(
+                      width: 30,
+                      height: 30,
+                      point: LatLng(event.latitude, event.longitude),
+                      child: _getEventIcon(event.type),
+                    ),
+                  );
+                }
+              }
+            }
+
+            return MarkerLayer(markers: markers);
+          },
+        ),
+      ],
     );
+  }
+
+  Widget _getEventIcon(EventType type) {
+    IconData icon;
+    Color color;
+
+    switch (type) {
+      case EventType.flood:
+        icon = Icons.water;
+        color = Colors.blue;
+        break;
+      case EventType.storm:
+        icon = Icons.bolt;
+        color = Colors.orange;
+        break;
+      case EventType.earthquake:
+        icon = Icons.waves;
+        color = Colors.redAccent;
+        break;
+      case EventType.fire:
+        icon = Icons.local_fire_department;
+        color = Colors.deepOrange;
+        break;
+      default:
+        icon = Icons.location_on;
+        color = Colors.black;
+    }
+
+    return Icon(icon, color: color, size: 28);
   }
 }

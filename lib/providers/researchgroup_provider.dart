@@ -63,6 +63,16 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  // Toggle isSelected status for a group
+  void toggleGroupSelection(String groupId) {
+    final index = _groups.indexWhere((group) => group.id == groupId);
+    if (index == -1) return;
+
+    final group = _groups[index];
+    _groups[index] = group.copyWith(isSelected: !group.isSelected);
+    notifyListeners();
+  }
+
   // Load some initial mock data
   void loadMockData() {
     final user1 = User(id: 'u1', name: 'Alice');
