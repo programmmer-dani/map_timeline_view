@@ -1,5 +1,6 @@
-import 'user.dart';
-import 'comment.dart';
+import 'package:map_timeline_view/entities/comment.dart';
+import 'package:map_timeline_view/entities/user.dart';
+import 'package:map_timeline_view/enums/event_types.dart';
 
 class Event {
   final String id;
@@ -7,14 +8,11 @@ class Event {
   final User author;
   final DateTime start;
   final DateTime end;
-  final String? data;
-  final List<Comment> comments;
+  final String data;
   final double latitude;
   final double longitude;
-  final List<String> tag;
-
-  final bool isClustered;
-  final int? clusterSize;
+  final EventType type;
+  final List<Comment> comments;
 
   Event({
     required this.id,
@@ -22,15 +20,14 @@ class Event {
     required this.author,
     required this.start,
     required this.end,
-    this.data,
-    this.comments = const [],
+    required this.data,
     required this.latitude,
     required this.longitude,
-    required this.tag,
-    this.isClustered = false,
-    this.clusterSize,
-  });
+    required this.type,
+    List<Comment>? comments,
+  }) : comments = comments ?? [];
 
-  bool get hasComments => comments.isNotEmpty;
+  void addComment(Comment comment) {
+    comments.add(comment);
+  }
 }
-

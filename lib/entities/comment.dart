@@ -1,4 +1,4 @@
-import 'user.dart';
+import 'package:map_timeline_view/entities/user.dart';
 
 class Comment {
   final User author;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:map_timeline_view/providers/set_time_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
 
 class TimelineStartDisplay extends StatelessWidget {
   const TimelineStartDisplay({super.key});
