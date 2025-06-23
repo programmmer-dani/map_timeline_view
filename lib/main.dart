@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
+import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'pages/login_page.dart';
@@ -25,8 +26,11 @@ void main() async {
     visibleEnd: end,
   );
 
+  final researchGroupsProvider = ResearchGroupsProvider();
+  researchGroupsProvider.loadMockData();
+
   final eventsProvider = EventsProvider();
-  eventsProvider.loadMockData();
+  eventsProvider.loadMockData(researchGroupsProvider);
 
   runApp(
     MultiProvider(
@@ -35,6 +39,9 @@ void main() async {
           value: timelineProvider,
         ),
         ChangeNotifierProvider<EventsProvider>.value(value: eventsProvider),
+        ChangeNotifierProvider<ResearchGroupsProvider>.value(
+          value: researchGroupsProvider,
+        ),
       ],
       child: const MainApp(),
     ),

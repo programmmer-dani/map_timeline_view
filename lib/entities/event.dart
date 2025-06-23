@@ -11,8 +11,7 @@ class Event {
   final String data;
   final double latitude;
   final double longitude;
-  final EventType
-  type; // This uses your class-based EventType with icon and name
+  final EventType type;
   final List<Comment> comments;
 
   Event({
