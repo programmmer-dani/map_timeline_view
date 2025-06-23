@@ -1,6 +1,6 @@
 import 'package:map_timeline_view/entities/comment.dart';
+import 'package:map_timeline_view/entities/event_type.dart';
 import 'package:map_timeline_view/entities/user.dart';
-import 'package:map_timeline_view/enums/event_types.dart';
 
 class Event {
   final String id;
@@ -11,7 +11,8 @@ class Event {
   final String data;
   final double latitude;
   final double longitude;
-  final EventType type;
+  final EventType
+  type; // This uses your class-based EventType with icon and name
   final List<Comment> comments;
 
   Event({

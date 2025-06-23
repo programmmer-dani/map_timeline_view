@@ -18,18 +18,23 @@ void main() async {
   final DateTime end = DateTime.now();
   final DateTime selected = now;
 
+  // Initialize providers
+  final timelineProvider = TimelineRangeProvider(
+    selectedTime: selected,
+    visibleStart: start,
+    visibleEnd: end,
+  );
+
+  final eventsProvider = EventsProvider();
+  eventsProvider.loadMockData();
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create:
-              (_) => TimelineRangeProvider(
-                selectedTime: selected,
-                visibleStart: start,
-                visibleEnd: end,
-              ),
+        ChangeNotifierProvider<TimelineRangeProvider>.value(
+          value: timelineProvider,
         ),
-        ChangeNotifierProvider(create: (_) => EventsProvider()),
+        ChangeNotifierProvider<EventsProvider>.value(value: eventsProvider),
       ],
       child: const MainApp(),
     ),
