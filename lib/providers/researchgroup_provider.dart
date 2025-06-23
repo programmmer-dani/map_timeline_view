@@ -104,8 +104,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     final user4 = User(id: 'u4', name: 'David');
     final user5 = User(id: 'u5', name: 'Eva');
 
-    final now = DateTime.now();
-
     _groups.addAll([
       ResearchGroup(id: 'rg1', name: 'Hydrology Team', members: [user1, user2]),
       ResearchGroup(id: 'rg2', name: 'Seismic Analysis', members: [user3]),
