@@ -35,7 +35,8 @@ class _SplitViewState extends State<SplitView> {
   @override
   void initState() {
     super.initState();
-    _splitRatio = widget.initialSplitRatio;
+    // Start with bottomChild in full screen:
+    _splitRatio = 1.0;
   }
 
   @override
@@ -45,6 +46,8 @@ class _SplitViewState extends State<SplitView> {
         final height = constraints.maxHeight;
         final draggerHeight = widget.draggerHeight;
         final halfDraggerHeight = draggerHeight / 2;
+
+        // _splitRatio is how much height bottomChild takes:
         final mapHeight = _splitRatio * height;
         final topHeight = height - mapHeight - draggerHeight;
 
@@ -55,7 +58,7 @@ class _SplitViewState extends State<SplitView> {
               top: 0,
               left: 0,
               right: 0,
-              height: topHeight,
+              height: topHeight > 0 ? topHeight : 0,
               child: widget.topChild,
             ),
 
