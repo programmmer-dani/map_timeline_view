@@ -28,9 +28,7 @@ class TimelineView extends StatelessWidget {
     final selectedGroups = groups.where((g) => g.isSelected).toList();
 
     if (selectedGroups.isEmpty) {
-      return const Center(
-        child: Text('No groups selected. Tap to select groups.'),
-      );
+      return const Center(child: Text('No groups selected.'));
     }
 
     return LayoutBuilder(
