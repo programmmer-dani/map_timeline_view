@@ -4,7 +4,9 @@ import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:provider/provider.dart';
 
 class TimeSlider extends StatelessWidget {
-  const TimeSlider({super.key});
+  final ValueChanged<DateTime>? onChanged;
+
+  const TimeSlider({super.key, this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -62,6 +64,10 @@ class TimeSlider extends StatelessWidget {
                             value.toInt(),
                           );
                           provider.setSelectedTime(newTime);
+
+                          if (onChanged != null) {
+                            onChanged!(newTime);
+                          }
                         },
                       ),
                     ),

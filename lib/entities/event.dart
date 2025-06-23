@@ -1,6 +1,6 @@
 import 'package:map_timeline_view/entities/comment.dart';
+import 'package:map_timeline_view/entities/event_type.dart';
 import 'package:map_timeline_view/entities/user.dart';
-import 'package:map_timeline_view/enums/event_types.dart';
 
 class Event {
   final String id;

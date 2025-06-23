@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
-import 'package:provider/provider.dart';
+import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:flutter_map/flutter_map.dart'; // <== for MapController
+import 'package:provider/provider.dart';
+
 import 'pages/login_page.dart';
 
 void main() async {
@@ -18,18 +22,41 @@ void main() async {
   final DateTime end = DateTime.now();
   final DateTime selected = now;
 
+  // Initialize core providers
+  final timelineProvider = TimelineRangeProvider(
+    selectedTime: selected,
+    visibleStart: start,
+    visibleEnd: end,
+  );
+
+  final researchGroupsProvider = ResearchGroupsProvider();
+  researchGroupsProvider.loadMockData();
+
+  final eventsProvider = EventsProvider();
+  eventsProvider.loadMockData(researchGroupsProvider);
+
+  final mapController = MapController(); // <== create MapController
+
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
+        ChangeNotifierProvider<TimelineRangeProvider>.value(
+          value: timelineProvider,
+        ),
+        ChangeNotifierProvider<EventsProvider>.value(value: eventsProvider),
+        ChangeNotifierProvider<ResearchGroupsProvider>.value(
+          value: researchGroupsProvider,
+        ),
+
+        /// 💡 Register MapMarkerProvider **after** its dependencies
+        ChangeNotifierProvider<MapMarkerProvider>(
           create:
-              (_) => TimelineRangeProvider(
-                selectedTime: selected,
-                visibleStart: start,
-                visibleEnd: end,
+              (_) => MapMarkerProvider(
+                mapController: mapController,
+                groupProvider: researchGroupsProvider,
+                timeProvider: timelineProvider,
               ),
         ),
-        ChangeNotifierProvider(create: (_) => EventsProvider()),
       ],
       child: const MainApp(),
     ),

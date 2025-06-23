@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
-import '../../widgets/map_and_timeline.dart';
-import '../../widgets/control_panel.dart'; // import ControlPanel
+import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
+import 'package:provider/provider.dart';
 
-class DesktopMapLayout extends StatelessWidget {
+import '../../widgets/map_view.dart';
+import '../../widgets/timeline.dart';
+import '../../widgets/split_view.dart';
+import '../../widgets/control_panel.dart';
+
+class DesktopMapLayout extends StatefulWidget {
   const DesktopMapLayout({super.key});
+
+  @override
+  State<DesktopMapLayout> createState() => _DesktopMapLayoutState();
+}
+
+class _DesktopMapLayoutState extends State<DesktopMapLayout> {
+  final GlobalKey<MapViewState> mapKey = GlobalKey<MapViewState>();
 
   bool get isDesktop =>
       ![
@@ -14,107 +27,91 @@ class DesktopMapLayout extends StatelessWidget {
         TargetPlatform.fuchsia,
       ].contains(defaultTargetPlatform);
 
+  static const double controlPanelHeight = 88.0;
+  static const double bottomPanelHeight = 225.0; // 1.5 times bigger than before
+
   @override
   Widget build(BuildContext context) {
     if (!isDesktop) {
-      // Fallback if someone uses this on mobile
       return const Center(child: Text('Desktop layout only'));
     }
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        //final width = constraints.maxWidth;
-        final height = constraints.maxHeight;
+        final availableHeight = constraints.maxHeight;
 
-        final bottomPanelHeight = height * 0.25;
-        final mainHeight = height - bottomPanelHeight;
+        // Calculate the height for the SplitView area by subtracting control panel and bottom panels
+        final mainHeight =
+            availableHeight - controlPanelHeight - bottomPanelHeight;
 
-        return Stack(
+        return Column(
           children: [
-            Row(
-              children: [
-                // Main content: Map + bottom panels
-                Expanded(
-                  child: Column(
-                    children: [
-                      // Map area takes top 75%
-                      SizedBox(
-                        height: mainHeight,
-                        child: const MapWithSplitView(),
-                      ),
+            // Control Panel on top
+            SizedBox(height: controlPanelHeight, child: ControlPanel()),
 
-                      // Bottom 25% panel split horizontally
-                      SizedBox(
-                        height: bottomPanelHeight,
-                        child: Row(
-                          children: [
-                            // Left half: Filter settings panel + Notification panel
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.blue.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Filter Settings Panel',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-
-                                  // Notification panel (left half of left side)
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.green.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Notification Panel',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-                            // Right half: Notification panel + Event preview
-                            Expanded(
-                              flex: 1,
-                              child: Row(
-                                children: [
-                                  // Event preview placeholder (right half of right side)
-                                  Expanded(
-                                    flex: 1,
-                                    child: Container(
-                                      color: Colors.orange.shade50,
-                                      child: const Center(
-                                        child: Text(
-                                          'Event Preview Placeholder',
-                                          style: TextStyle(fontSize: 18),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+            SizedBox(
+              height: mainHeight,
+              child: SplitView(
+                key: mapKey,
+                initialSplitRatio: 0.85,
+                minSplitRatio: 0.4,
+                maxSplitRatio: 0.9,
+                draggerHeight: 40,
+                isMobile: false,
+                topChild: TimelineView(
+                  researchGroups: const ['Group A', 'Group B'],
+                  visibleStart: DateTime.now().subtract(
+                    const Duration(hours: 1),
                   ),
+                  visibleEnd: DateTime.now().add(const Duration(hours: 1)),
                 ),
-              ],
+                bottomChild: MapView(),
+                startSelector: const TimelineStartDisplay(),
+                endSelector: const TimelineEndDisplay(),
+              ),
             ),
 
-            // Floating ControlPanel on top
-            const Positioned(top: 0, left: 0, right: 0, child: ControlPanel()),
+            // Bottom panels arranged horizontally with expanded space
+            SizedBox(
+              height: bottomPanelHeight,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      color: Colors.blue.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Filter Settings Panel',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.green.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Notification Panel',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: Container(
+                      color: Colors.orange.shade50,
+                      child: const Center(
+                        child: Text(
+                          'Event Preview Placeholder',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         );
       },

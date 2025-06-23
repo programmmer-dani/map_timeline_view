@@ -4,8 +4,8 @@ import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatf
 import '../desktop/widgets/desktop_layout.dart'; // desktop layout
 import '../mobile/widgets/mobile_layout.dart'; // desktop layout
 
-class MapPage extends StatelessWidget {
-  const MapPage({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
   bool get isDesktop =>
       ![
@@ -14,12 +14,16 @@ class MapPage extends StatelessWidget {
         TargetPlatform.fuchsia,
       ].contains(defaultTargetPlatform);
 
-  @override
-  Widget build(BuildContext context) {
-    if (isDesktop) {
-      return const Scaffold(body: DesktopMapLayout());
-    } else {
-      return const Scaffold(body: PhoneMapLayout());
-    }
+@override
+Widget build(BuildContext context) {
+  if (isDesktop) {
+    return Scaffold(
+      body: SafeArea(child: DesktopMapLayout()),
+    );
+  } else {
+    return Scaffold(
+      body: SafeArea(child: PhoneMapLayout()),
+    );
   }
+}
 }

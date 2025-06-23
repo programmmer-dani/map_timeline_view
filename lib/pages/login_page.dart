@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:map_timeline_view/pages/map_timeline_page.dart';
+import 'package:map_timeline_view/pages/home_page.dart';
 
 class LoginPage extends StatelessWidget {
   const LoginPage({super.key});
@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const MapPage()),
+                    MaterialPageRoute(builder: (context) => const HomePage()),
                   );
                 },
                 child: const Text('Login'),

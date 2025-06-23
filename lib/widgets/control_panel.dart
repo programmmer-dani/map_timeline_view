@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
+import 'package:provider/provider.dart';
 
-class ControlPanel extends StatelessWidget {
+class ControlPanel extends StatefulWidget {
   const ControlPanel({super.key});
 
   bool get isMobile {
@@ -12,12 +14,37 @@ class ControlPanel extends StatelessWidget {
   }
 
   @override
+  State<ControlPanel> createState() => _ControlPanelState();
+}
+
+class _ControlPanelState extends State<ControlPanel> {
+  late DateTime _selectedTime;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize selectedTime however is appropriate, e.g.:
+    _selectedTime = DateTime.now();
+  }
+
+  void _handleTimeChanged(DateTime newTime) {
+    setState(() {
+      _selectedTime = newTime;
+      final markerProvider = Provider.of<MapMarkerProvider>(
+        context,
+        listen: false,
+      );
+      markerProvider.recalculateMarkers();
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool isMobile = widget.isMobile;
     final double spacing = isMobile ? 4.0 : 8.0;
     final double fontSize = isMobile ? 13.0 : 16.0;
     final double iconSize = isMobile ? 18.0 : 22.0;
-
-    final double panelHeight = isMobile ? 70 : 72; // <-- ADJUSTED HERE
+    final double panelHeight = isMobile ? 70 : 72;
 
     return Positioned(
       top: 0,
@@ -63,9 +90,7 @@ class ControlPanel extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         SizedBox(height: spacing / 2),
-
                         // Buttons row
                         SizedBox(
                           height: isMobile ? 26 : 28,
@@ -73,7 +98,11 @@ class ControlPanel extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               IconButton(
-                                icon: Icon(Icons.add, color: Colors.white, size: iconSize),
+                                icon: Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                  size: iconSize,
+                                ),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: () {},
@@ -82,7 +111,11 @@ class ControlPanel extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(left: spacing),
                                   child: IconButton(
-                                    icon: Icon(Icons.filter_alt, color: Colors.white, size: iconSize),
+                                    icon: Icon(
+                                      Icons.filter_alt,
+                                      color: Colors.white,
+                                      size: iconSize,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {},
@@ -92,7 +125,11 @@ class ControlPanel extends StatelessWidget {
                                 Padding(
                                   padding: EdgeInsets.only(left: spacing),
                                   child: IconButton(
-                                    icon: Icon(Icons.notifications, color: Colors.white, size: iconSize),
+                                    icon: Icon(
+                                      Icons.notifications,
+                                      color: Colors.white,
+                                      size: iconSize,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {},
@@ -105,12 +142,15 @@ class ControlPanel extends StatelessWidget {
                     ),
                   ),
                 ),
-
-                // Right side: Time slider
+                // Right side: Time slider (pass callback)
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(right: isMobile ? 16 : 24),
-                    child: const TimeSlider(),
+                    child: TimeSlider(
+                      onChanged: _handleTimeChanged,
+                      // You might want to pass initial values here too,
+                      // depending on your TimeSlider implementation
+                    ),
                   ),
                 ),
               ],
