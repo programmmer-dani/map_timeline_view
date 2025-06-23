@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
+import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
 import 'package:provider/provider.dart';
 
 class ControlPanel extends StatefulWidget {
@@ -23,7 +24,6 @@ class _ControlPanelState extends State<ControlPanel> {
   @override
   void initState() {
     super.initState();
-    // Initialize selectedTime however is appropriate, e.g.:
     _selectedTime = DateTime.now();
   }
 
@@ -36,6 +36,30 @@ class _ControlPanelState extends State<ControlPanel> {
       );
       markerProvider.recalculateMarkers();
     });
+  }
+
+  void _showGroupSelectorDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final media = MediaQuery.of(context).size;
+        return Dialog(
+          insetPadding: const EdgeInsets.all(16),
+          backgroundColor: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SizedBox(
+            width: media.width * 0.9,
+            height: media.height * 0.7,
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ResearchGroupSelectorGrid(),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -91,7 +115,6 @@ class _ControlPanelState extends State<ControlPanel> {
                           ),
                         ),
                         SizedBox(height: spacing / 2),
-                        // Buttons row
                         SizedBox(
                           height: isMobile ? 26 : 28,
                           child: Row(
@@ -105,7 +128,9 @@ class _ControlPanelState extends State<ControlPanel> {
                                 ),
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
-                                onPressed: () {},
+                                onPressed: () {
+                                  // Implement add action if needed
+                                },
                               ),
                               if (isMobile)
                                 Padding(
@@ -118,7 +143,8 @@ class _ControlPanelState extends State<ControlPanel> {
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    onPressed: () {},
+                                    onPressed:
+                                        () => _showGroupSelectorDialog(context),
                                   ),
                                 ),
                               if (isMobile)
@@ -132,7 +158,9 @@ class _ControlPanelState extends State<ControlPanel> {
                                     ),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      // Implement notifications logic
+                                    },
                                   ),
                                 ),
                             ],
@@ -142,15 +170,11 @@ class _ControlPanelState extends State<ControlPanel> {
                     ),
                   ),
                 ),
-                // Right side: Time slider (pass callback)
+                // Right side: Time slider
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(right: isMobile ? 16 : 24),
-                    child: TimeSlider(
-                      onChanged: _handleTimeChanged,
-                      // You might want to pass initial values here too,
-                      // depending on your TimeSlider implementation
-                    ),
+                    child: TimeSlider(onChanged: _handleTimeChanged),
                   ),
                 ),
               ],

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import '../../widgets/map_view.dart';
 import '../../widgets/timeline_widget.dart';
@@ -25,7 +26,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
       ].contains(defaultTargetPlatform);
 
   static const double controlPanelHeight = 88.0;
-  static const double bottomPanelHeight = 225.0; // 1.5 times bigger than before
+  static const double bottomPanelHeight = 225.0;
 
   @override
   Widget build(BuildContext context) {
@@ -68,15 +69,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      color: Colors.blue.shade50,
-                      child: const Center(
-                        child: Text(
-                          'Filter Settings Panel',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                    child: ResearchGroupSelectorGrid()
                   ),
                   Expanded(
                     child: Container(
