@@ -28,7 +28,7 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
     mapKey.currentState?.recalculateMarkers();
   }
 
-  static const double controlPanelHeight = 78.0;
+  static const double controlPanelHeight = 88.0;
   static const double bottomPanelHeight = 225.0; // 1.5 times bigger than before
 
   @override

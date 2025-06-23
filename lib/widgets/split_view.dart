@@ -81,16 +81,20 @@ class _SplitViewState extends State<SplitView> {
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(widget.minSplitRatio, 1.0);
+                    _splitRatio = _splitRatio.clamp(0.0, 1.0);
                   });
                 },
                 onVerticalDragEnd: (details) {
                   setState(() {
-                    if (_splitRatio < widget.minSplitRatio) {
-                      _splitRatio = widget.isMobile ? 0.20 : 0.11;
-                    } else if (_splitRatio > widget.maxSplitRatio) {
+                    // Snap bottomChild to 100% if top is too small (<25%)
+                    if ((1.0 - _splitRatio) < 0.25) {
                       _splitRatio = 1.0;
                     }
+                    // Snap topChild to 100% if bottom is too small (<25%)
+                    else if (_splitRatio < 0.25) {
+                      _splitRatio = 0.0;
+                    }
+                    // Else leave it wherever the user dropped it
                   });
                 },
                 child: Center(
