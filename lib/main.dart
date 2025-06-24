@@ -3,9 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
+import 'package:map_timeline_view/providers/search_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
-import 'package:flutter_map/flutter_map.dart'; // <== for MapController
+import 'package:flutter_map/flutter_map.dart';
 import 'package:provider/provider.dart';
 
 import 'pages/login_page.dart';
@@ -23,11 +24,10 @@ void main() async {
   ]);
 
   final DateTime now = DateTime.now().subtract(const Duration(days: 1));
-  final DateTime start = DateTime.now().subtract(const Duration(days: 2));
-  final DateTime end = DateTime.now();
-  final DateTime selected = now;
+  final DateTime start = DateTime(2025, 6, 1);
+  final DateTime end = DateTime(2025, 8, 1);
+  final DateTime selected = DateTime(2025, 7, 24);
 
-  // Initialize core providers
   final timelineProvider = TimelineRangeProvider(
     selectedTime: selected,
     visibleStart: start,
@@ -40,7 +40,7 @@ void main() async {
   final eventsProvider = EventsProvider();
   eventsProvider.loadMockData(researchGroupsProvider);
 
-  final mapController = MapController(); // <== create MapController
+  final mapController = MapController();
 
   runApp(
     MultiProvider(
@@ -53,15 +53,15 @@ void main() async {
           value: researchGroupsProvider,
         ),
         ChangeNotifierProvider<MapMarkerProvider>(
-          create:
-              (_) => MapMarkerProvider(
-                mapController: mapController,
-                groupProvider: researchGroupsProvider,
-                timeProvider: timelineProvider,
-              ),
+          create: (_) => MapMarkerProvider(
+            mapController: mapController,
+          ),
         ),
         ChangeNotifierProvider<SelectedEventProvider>(
           create: (_) => SelectedEventProvider(),
+        ),
+        ChangeNotifierProvider<SearchProvider>(
+          create: (_) => SearchProvider(),
         ),
       ],
       child: const MainApp(),
@@ -74,10 +74,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'final concept POC',
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      navigatorKey: navigatorKey,
+      home: const LoginPage(),
     );
   }
 }

@@ -50,7 +50,8 @@ class _AddEventScreenState extends State<AddEventScreen> {
         _selectedGroup!.id,
         event,
       );
-      context.read<MapMarkerProvider>().recalculateMarkers();
+
+      context.read<MapMarkerProvider>().recalculateMarkers(context);
 
       Navigator.of(context).pop();
       ScaffoldMessenger.of(
@@ -133,7 +134,7 @@ class _AddEventScreenState extends State<AddEventScreen> {
                 onChanged: (val) => setState(() => _selectedType = val!),
               ),
               DropdownButtonFormField<ResearchGroup>(
-                value: _selectedGroup,
+                value: groups.contains(_selectedGroup) ? _selectedGroup : null,
                 decoration: const InputDecoration(labelText: 'Research Group'),
                 items:
                     groups.map((group) {

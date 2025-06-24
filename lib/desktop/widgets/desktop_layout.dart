@@ -53,7 +53,7 @@ class DesktopMapLayout extends StatelessWidget {
                 maxSplitRatio: 1.0,
                 draggerHeight: 40,
                 isMobile: false,
-                topChild: const TimelineView(),
+                topChild: const TimelineWidget(),
                 bottomChild: const MapView(),
                 startSelector: const TimelineStartDisplay(),
                 endSelector: const TimelineEndDisplay(),

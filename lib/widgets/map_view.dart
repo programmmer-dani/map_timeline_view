@@ -46,11 +46,15 @@ class MapViewState extends State<MapView> {
         initialCenter: LatLng(52.370216, 4.895168),
         initialZoom: 13.0,
         interactiveFlags: InteractiveFlag.all,
+        onMapReady: () {
+          // Trigger initial marker calculation once map is ready
+          markerProvider.recalculateMarkers(context);
+        },
         onMapEvent: (_) {
           _debounceTimer?.cancel();
           _debounceTimer = Timer(
             const Duration(milliseconds: 200),
-            () => markerProvider.recalculateMarkers(),
+            () => markerProvider.recalculateMarkers(context),
           );
         },
       ),

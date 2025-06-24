@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 
@@ -33,28 +34,43 @@ class ResearchGroupSelectorGrid extends StatelessWidget {
                 final group = groups[index];
                 return GestureDetector(
                   onTap: () {
-                    // Toggle selection on tap
-                    context.read<ResearchGroupsProvider>().toggleGroupSelection(group.id);
+                    final groupProvider =
+                        context.read<ResearchGroupsProvider>();
+                    final markerProvider = context.read<MapMarkerProvider>();
+
+                    groupProvider.toggleGroupSelection(group.id);
+                    markerProvider.recalculateMarkers(context);
                   },
+
                   child: Container(
                     decoration: BoxDecoration(
-                      color: group.isSelected ? Colors.blueAccent.withOpacity(0.7) : Colors.white,
+                      color:
+                          group.isSelected
+                              ? Colors.blueAccent.withOpacity(0.7)
+                              : Colors.white,
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(
-                        color: group.isSelected ? Colors.blueAccent : Colors.grey.shade300,
+                        color:
+                            group.isSelected
+                                ? Colors.blueAccent
+                                : Colors.grey.shade300,
                         width: 2,
                       ),
-                      boxShadow: group.isSelected
-                          ? [
-                              BoxShadow(
-                                color: Colors.blueAccent.withOpacity(0.3),
-                                blurRadius: 6,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : [],
+                      boxShadow:
+                          group.isSelected
+                              ? [
+                                BoxShadow(
+                                  color: Colors.blueAccent.withOpacity(0.3),
+                                  blurRadius: 6,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ]
+                              : [],
                     ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     alignment: Alignment.centerLeft,
                     child: Text(
                       group.name,
