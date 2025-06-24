@@ -333,7 +333,104 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.flood,
     );
 
-    _events.addAll([event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24]);
+    // Additional long events in middle of June for clustering testing
+    final event25 = Event(
+      id: 'event25',
+      title: 'Central European Storm System',
+      author: user1,
+      start: DateTime(2025, 6, 10, 6, 0),
+      end: DateTime(2025, 6, 15, 18, 0),
+      data: 'Large storm system affecting central Europe for nearly a week.',
+      latitude: 50.0755,
+      longitude: 14.4378,
+      type: EventType.storm,
+    );
+
+    final event26 = Event(
+      id: 'event26',
+      title: 'Extended Heatwave Central Europe',
+      author: user3,
+      start: DateTime(2025, 6, 11, 8, 0),
+      end: DateTime(2025, 6, 17, 22, 0),
+      data: 'Prolonged heatwave affecting multiple central European countries.',
+      latitude: 48.2082,
+      longitude: 16.3738,
+      type: EventType.fire,
+    );
+
+    final event27 = Event(
+      id: 'event27',
+      title: 'Major Flood Event Rhine Valley',
+      author: user2,
+      start: DateTime(2025, 6, 12, 4, 0),
+      end: DateTime(2025, 6, 19, 12, 0),
+      data: 'Severe flooding along the Rhine River affecting multiple cities.',
+      latitude: 50.9375,
+      longitude: 6.9603,
+      type: EventType.flood,
+    );
+
+    final event28 = Event(
+      id: 'event28',
+      title: 'Seismic Activity Alpine Region',
+      author: user4,
+      start: DateTime(2025, 6, 13, 10, 0),
+      end: DateTime(2025, 6, 20, 16, 0),
+      data: 'Increased seismic activity in the Alpine region requiring monitoring.',
+      latitude: 47.3769,
+      longitude: 8.5417,
+      type: EventType.earthquake,
+    );
+
+    final event29 = Event(
+      id: 'event29',
+      title: 'Wildfire Outbreak Southern Europe',
+      author: user3,
+      start: DateTime(2025, 6, 14, 12, 0),
+      end: DateTime(2025, 6, 21, 8, 0),
+      data: 'Multiple wildfires breaking out across southern European regions.',
+      latitude: 41.9028,
+      longitude: 12.4964,
+      type: EventType.fire,
+    );
+
+    final event30 = Event(
+      id: 'event30',
+      title: 'Coastal Storm Series',
+      author: user1,
+      start: DateTime(2025, 6, 15, 0, 0),
+      end: DateTime(2025, 6, 22, 0, 0),
+      data: 'Series of storms affecting coastal regions of western Europe.',
+      latitude: 51.5074,
+      longitude: -0.1278,
+      type: EventType.storm,
+    );
+
+    final event31 = Event(
+      id: 'event31',
+      title: 'Urban Flooding Crisis',
+      author: user2,
+      start: DateTime(2025, 6, 16, 6, 0),
+      end: DateTime(2025, 6, 23, 14, 0),
+      data: 'Major urban flooding affecting multiple European capitals.',
+      latitude: 52.5200,
+      longitude: 13.4050,
+      type: EventType.flood,
+    );
+
+    final event32 = Event(
+      id: 'event32',
+      title: 'Heat Dome Formation',
+      author: user3,
+      start: DateTime(2025, 6, 17, 8, 0),
+      end: DateTime(2025, 6, 24, 20, 0),
+      data: 'Formation of a heat dome causing extreme temperatures across Europe.',
+      latitude: 48.8566,
+      longitude: 2.3522,
+      type: EventType.fire,
+    );
+
+    _events.addAll([event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32]);
     print('Added ${_events.length} events to EventsProvider');
 
     // Assign events to groups
@@ -354,12 +451,17 @@ class EventsProvider extends ChangeNotifier {
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event20); // Prague Flood Warning
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event21); // Barcelona Storm
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event24); // Warsaw Flooding
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event25); // Central European Storm System
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event27); // Major Flood Event Rhine Valley
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event30); // Coastal Storm Series
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event31); // Urban Flooding Crisis
       
       // Seismic Analysis gets earthquake events
       groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event6); // Late June Earthquake
       groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event11); // Earthquake Near Lake Como
       groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event17); // Rome Earthquake Swarm
       groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event22); // Munich Earthquake
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event28); // Seismic Activity Alpine Region
       
       // Wildfire Watch gets fire events
       groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event3); // June Heatwave
@@ -369,6 +471,9 @@ class EventsProvider extends ChangeNotifier {
       groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event16); // Madrid Wildfire
       groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event19); // Vienna Heat Alert
       groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event23); // Brussels Heatwave
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event26); // Extended Heatwave Central Europe
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event29); // Wildfire Outbreak Southern Europe
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event32); // Heat Dome Formation
       
       print('Added events to groups');
       

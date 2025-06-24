@@ -167,6 +167,7 @@ class TimelineWidget extends StatelessWidget {
                 visibleEnd: visibleEnd,
                 onEventTap: onEventTap,
                 maxLanes: maxLanes,
+                groupColor: baseColor,
               ),
             ),
           ),

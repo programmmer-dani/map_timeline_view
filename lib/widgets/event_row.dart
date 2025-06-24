@@ -13,15 +13,13 @@ class GroupEventCluster {
   final DateTime start;
   final DateTime end;
   final int count;
-  final Color dominantColor;
   final String dominantType;
 
   GroupEventCluster(this.events)
       : start = events.map((e) => e.start).reduce((a, b) => a.isBefore(b) ? a : b),
         end = events.map((e) => e.end).reduce((a, b) => a.isAfter(b) ? a : b),
         count = events.length,
-        dominantType = _getDominantEventType(events),
-        dominantColor = _getColorForEventType(_getDominantEventType(events));
+        dominantType = _getDominantEventType(events);
 
   String get title => '$count Events ($dominantType)';
 
@@ -43,21 +41,6 @@ class GroupEventCluster {
     
     return dominantType;
   }
-
-  static Color _getColorForEventType(String eventType) {
-    switch (eventType.toLowerCase()) {
-      case 'storm':
-        return Colors.orange;
-      case 'flood':
-        return Colors.blue;
-      case 'fire':
-        return Colors.red;
-      case 'earthquake':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
 }
 
 class EventRow extends StatelessWidget {
@@ -66,6 +49,7 @@ class EventRow extends StatelessWidget {
   final DateTime visibleEnd;
   final void Function(Event)? onEventTap; // Optional legacy support
   final int maxLanes; // Maximum number of lanes available
+  final Color groupColor; // Color scheme for this research group
 
   const EventRow({
     super.key,
@@ -74,6 +58,7 @@ class EventRow extends StatelessWidget {
     required this.visibleEnd,
     this.onEventTap,
     this.maxLanes = 3, // Default to 3 lanes
+    required this.groupColor,
   });
 
   @override
@@ -145,8 +130,15 @@ class EventRow extends StatelessWidget {
                                 height: laneHeight - 4,
                                 margin: const EdgeInsets.symmetric(horizontal: 2),
                                 decoration: BoxDecoration(
-                                  color: Colors.blueAccent,
+                                  color: groupColor,
                                   borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: groupColor.withOpacity(0.3),
+                                      blurRadius: 4,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
                                 ),
                                 child: Center(
                                   child: Text(
@@ -192,17 +184,17 @@ class EventRow extends StatelessWidget {
                               height: 44,
                               margin: const EdgeInsets.symmetric(horizontal: 2),
                               decoration: BoxDecoration(
-                                color: cluster.dominantColor,
+                                color: groupColor.withOpacity(0.8),
                                 borderRadius: BorderRadius.circular(20),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: cluster.dominantColor.withOpacity(0.5),
+                                    color: groupColor.withOpacity(0.4),
                                     blurRadius: 6,
                                     offset: const Offset(0, 3),
                                   ),
                                 ],
                                 border: Border.all(
-                                  color: Colors.white,
+                                  color: groupColor,
                                   width: 2,
                                 ),
                               ),
@@ -403,7 +395,7 @@ class EventRow extends StatelessWidget {
               width: 20,
               height: 20,
               decoration: BoxDecoration(
-                color: cluster.dominantColor,
+                color: groupColor,
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -453,16 +445,15 @@ class EventRow extends StatelessWidget {
               ...eventsByType.entries.map((entry) {
                 final typeName = entry.key;
                 final events = entry.value;
-                final color = _getColorForEventType(typeName);
                 
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: groupColor.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(4),
                     border: Border(
-                      left: BorderSide(color: color, width: 3),
+                      left: BorderSide(color: groupColor, width: 3),
                     ),
                   ),
                   child: Column(
@@ -474,7 +465,7 @@ class EventRow extends StatelessWidget {
                             width: 12,
                             height: 12,
                             decoration: BoxDecoration(
-                              color: color,
+                              color: groupColor,
                               borderRadius: BorderRadius.circular(2),
                             ),
                           ),
@@ -508,21 +499,6 @@ class EventRow extends StatelessWidget {
         ],
       ),
     );
-  }
-
-  Color _getColorForEventType(String eventType) {
-    switch (eventType.toLowerCase()) {
-      case 'storm':
-        return Colors.orange;
-      case 'flood':
-        return Colors.blue;
-      case 'fire':
-        return Colors.red;
-      case 'earthquake':
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
   }
 
   String _formatDateTime(DateTime dt) {
