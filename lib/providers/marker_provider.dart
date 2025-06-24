@@ -8,6 +8,7 @@ import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
+import 'package:map_timeline_view/widgets/timeline_indicator.dart';
 import 'package:provider/provider.dart';
 
 // Helper class to represent a cluster of nearby markers
@@ -25,9 +26,25 @@ class MapMarkerProvider extends ChangeNotifier {
   static const double _clusterRadius = 50.0; // pixels
   static const double _clusterThreshold = 2; // minimum markers to form a cluster
 
+  // Color scheme for research groups
+  static const List<Color> selectedColors = [
+    Color(0xFF2196F3), // Blue
+    Color(0xFF4CAF50), // Green
+    Color(0xFFFF9800), // Orange
+    Color(0xFF9C27B0), // Purple
+    Color(0xFFF44336), // Red
+    Color(0xFF00BCD4), // Cyan
+    Color(0xFF795548), // Brown
+    Color(0xFF607D8B), // Blue Grey
+  ];
+
   MapMarkerProvider({required this.mapController});
 
   List<Marker> get markers => _markers;
+
+  Color _getGroupColor(int groupIndex) {
+    return selectedColors[groupIndex % selectedColors.length];
+  }
 
   void recalculateMarkers(BuildContext context) {
     print('=== Recalculating Markers ===');
@@ -59,6 +76,9 @@ class MapMarkerProvider extends ChangeNotifier {
 
       for (final group in selectedGroups) {
         print('Processing group: ${group.name} with ${group.events.length} events');
+        final groupIndex = selectedGroups.toList().indexOf(group);
+        final groupColor = _getGroupColor(groupIndex);
+        
         for (final event in group.events) {
           // Normalize the selected time to remove seconds and milliseconds for comparison
           final normalizedSelectedTime = DateTime(
@@ -83,7 +103,7 @@ class MapMarkerProvider extends ChangeNotifier {
           if (isInTime && isInBounds) {
             individualMarkers.add(
               Marker(
-                width: 40,
+                width: 100, // Increased width to accommodate timeline indicator
                 height: 40,
                 point: LatLng(event.latitude, event.longitude),
                 child: GestureDetector(
@@ -107,7 +127,18 @@ class MapMarkerProvider extends ChangeNotifier {
                       );
                     }
                   },
-                  child: _getEventIcon(event.type),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _getEventIcon(event.type),
+                      const SizedBox(width: 4),
+                      TimelineIndicator(
+                        event: event,
+                        selectedTime: selectedTime,
+                        groupColor: groupColor,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );

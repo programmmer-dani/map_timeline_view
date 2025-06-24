@@ -67,6 +67,18 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.flood,
     );
 
+    final event2b = Event(
+      id: 'event2b',
+      title: 'June 9th Test Event',
+      author: user1,
+      start: DateTime(2025, 6, 9, 8, 0),
+      end: DateTime(2025, 6, 9, 22, 0),
+      data: 'Test event spanning the current selected time for timeline indicator testing.',
+      latitude: 52.3702,
+      longitude: 4.8952,
+      type: EventType.storm,
+    );
+
     final event3 = Event(
       id: 'event3',
       title: 'June Heatwave',
@@ -454,7 +466,7 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.storm,
     );
 
-    _events.addAll([event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32, event33, event34]);
+    _events.addAll([event1, event2, event2b, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32, event33, event34]);
     print('Added ${_events.length} events to EventsProvider');
 
     // Assign events to groups
@@ -464,6 +476,7 @@ class EventsProvider extends ChangeNotifier {
       // Hydrology Team gets flood and storm events
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event1); // Early June Storm
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2); // Mid-June Flood Warning
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2b); // June 9th Test Event
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event4); // Summer Solstice Storm
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event5); // Amsterdam storm wojchek
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event8); // June Flooding
