@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/providers/search_provider.dart';
 import 'package:map_timeline_view/widgets/add_event_widget.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
 import 'package:map_timeline_view/widgets/notifications.dart';
 import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
+import 'package:map_timeline_view/widgets/search_suggestions.dart';
 import 'package:provider/provider.dart';
 
 class ControlPanel extends StatefulWidget {
@@ -22,11 +25,19 @@ class ControlPanel extends StatefulWidget {
 
 class _ControlPanelState extends State<ControlPanel> {
   late DateTime _selectedTime;
+  final LayerLink _layerLink = LayerLink();
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
     _selectedTime = DateTime.now();
+  }
+
+  @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
   }
 
   void _handleTimeChanged(DateTime newTime) {
@@ -64,6 +75,47 @@ class _ControlPanelState extends State<ControlPanel> {
     );
   }
 
+  void _onEventSelected(Event event) {
+    final searchProvider = Provider.of<SearchProvider>(
+      context,
+      listen: false,
+    );
+    searchProvider.selectEvent(event, context);
+    _removeOverlay();
+  }
+
+  void _showOverlay(List<Event> suggestions) {
+    _removeOverlay();
+    
+    if (suggestions.isEmpty) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Positioned(
+        width: widget.isMobile ? 160 : 200,
+        child: CompositedTransformFollower(
+          link: _layerLink,
+          showWhenUnlinked: false,
+          offset: const Offset(0, 40), // Position below the search field
+          child: Material(
+            elevation: 8,
+            borderRadius: BorderRadius.circular(8),
+            child: SearchSuggestions(
+              suggestions: suggestions,
+              onEventSelected: _onEventSelected,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final bool isMobile = widget.isMobile;
@@ -94,26 +146,62 @@ class _ControlPanelState extends State<ControlPanel> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        SizedBox(
-                          height: isMobile ? 28 : 32,
-                          child: TextField(
-                            style: TextStyle(fontSize: fontSize),
-                            decoration: InputDecoration(
-                              hintText: 'Search...',
-                              hintStyle: TextStyle(fontSize: fontSize),
-                              filled: true,
-                              fillColor: Colors.white,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(
-                                horizontal: 6,
-                                vertical: 4,
+                        Consumer<SearchProvider>(
+                          builder: (context, searchProvider, child) {
+                            // Show/hide overlay based on search state
+                            if (searchProvider.isSearching && searchProvider.suggestions.isNotEmpty) {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _showOverlay(searchProvider.suggestions);
+                              });
+                            } else {
+                              WidgetsBinding.instance.addPostFrameCallback((_) {
+                                _removeOverlay();
+                              });
+                            }
+
+                            return CompositedTransformTarget(
+                              link: _layerLink,
+                              child: SizedBox(
+                                height: isMobile ? 28 : 32,
+                                child: TextField(
+                                  controller: searchProvider.searchController,
+                                  style: TextStyle(fontSize: fontSize),
+                                  decoration: InputDecoration(
+                                    hintText: 'Search events...',
+                                    hintStyle: TextStyle(fontSize: fontSize),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    isDense: true,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 4,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(4),
+                                      borderSide: BorderSide.none,
+                                    ),
+                                    suffixIcon: searchProvider.isSearching
+                                        ? IconButton(
+                                            icon: const Icon(Icons.clear, size: 16),
+                                            onPressed: () {
+                                              searchProvider.clearSearch();
+                                              _removeOverlay();
+                                            },
+                                            padding: EdgeInsets.zero,
+                                            constraints: const BoxConstraints(),
+                                          )
+                                        : null,
+                                  ),
+                                  onChanged: searchProvider.updateSearchQuery,
+                                  onTap: () {
+                                    if (searchProvider.isSearching && searchProvider.suggestions.isNotEmpty) {
+                                      _showOverlay(searchProvider.suggestions);
+                                    }
+                                  },
+                                ),
                               ),
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(4),
-                                borderSide: BorderSide.none,
-                              ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         SizedBox(height: spacing / 2),
                         SizedBox(

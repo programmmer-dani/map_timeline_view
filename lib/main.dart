@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
+import 'package:map_timeline_view/providers/search_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -59,6 +60,9 @@ void main() async {
         ChangeNotifierProvider<SelectedEventProvider>(
           create: (_) => SelectedEventProvider(),
         ),
+        ChangeNotifierProvider<SearchProvider>(
+          create: (_) => SearchProvider(),
+        ),
       ],
       child: const MainApp(),
     ),
@@ -70,10 +74,11 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: 'final concept POC',
       debugShowCheckedModeBanner: false,
-      home: LoginPage(),
+      navigatorKey: navigatorKey,
+      home: const LoginPage(),
     );
   }
 }
