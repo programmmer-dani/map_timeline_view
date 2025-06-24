@@ -140,7 +140,13 @@ class EventRow extends StatelessWidget {
   List<List<Event>> _assignEventsToLanes(List<Event> events) {
     final sorted = List<Event>.from(events)
       ..sort((a, b) => a.start.compareTo(b.start));
-    final lanes = <List<Event>>[];
+    final visibleEvents =
+        group.events.where((event) {
+          return (event.start.isBefore(visibleEnd) &&
+              event.end.isAfter(visibleStart));
+        }).toList();
+
+    final lanes = _assignEventsToLanes(visibleEvents);
 
     for (final event in sorted) {
       bool placed = false;
