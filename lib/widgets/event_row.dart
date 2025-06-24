@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 
 class EventRow extends StatelessWidget {
   final ResearchGroup group;
   final DateTime visibleStart;
   final DateTime visibleEnd;
+  final void Function(Event)? onEventTap; // Optional legacy support
 
   const EventRow({
     super.key,
     required this.group,
     required this.visibleStart,
     required this.visibleEnd,
+    this.onEventTap,
   });
 
   @override
@@ -49,7 +53,7 @@ class EventRow extends StatelessWidget {
                     top: laneIndex * laneHeight,
                     left: left,
                     child: GestureDetector(
-                      onTap: () => _showEventDetails(context, event),
+                      onTap: () => _handleEventTap(context, event),
                       child: Container(
                         width: width,
                         height: laneHeight - 4,
@@ -77,6 +81,34 @@ class EventRow extends StatelessWidget {
         );
       },
     );
+  }
+
+  void _handleEventTap(BuildContext context, Event event) {
+    final selectedEventProvider = Provider.of<SelectedEventProvider>(
+      context,
+      listen: false,
+    );
+
+    if (_isDesktop()) {
+      selectedEventProvider.select(event);
+    } else {
+      selectedEventProvider.select(event);
+      showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        builder: (_) => const EventPopUpWidget(),
+      );
+    }
+  }
+
+  bool _isDesktop() {
+    return ![
+      TargetPlatform.iOS,
+      TargetPlatform.android,
+      TargetPlatform.fuchsia,
+    ].contains(defaultTargetPlatform);
   }
 
   double _calculateOffset(
@@ -127,27 +159,5 @@ class EventRow extends StatelessWidget {
     }
 
     return lanes;
-  }
-
-  void _showEventDetails(BuildContext context, Event event) {
-    if (_isDesktop()) {
-      debugPrint('Desktop mode: event tapped');
-      return;
-    }
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (_) => EventPopUpWidget(event: event),
-    );
-  }
-
-  bool _isDesktop() {
-    return ![
-      TargetPlatform.iOS,
-      TargetPlatform.android,
-      TargetPlatform.fuchsia,
-    ].contains(defaultTargetPlatform);
   }
 }

@@ -24,8 +24,13 @@ class _PhoneMapLayoutState extends State<PhoneMapLayout> {
 
           Expanded(
             child: SplitView(
-              topChild: TimelineView(),
-              bottomChild: MapView(),
+              initialSplitRatio: 1.0,
+              minSplitRatio: 0.0,
+              maxSplitRatio: 1.0,
+              isMobile: true,
+              draggerHeight: 40,
+              topChild: const TimelineView(),
+              bottomChild: const MapView(),
               startSelector: const TimelineStartDisplay(),
               endSelector: const TimelineEndDisplay(),
             ),

@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:provider/provider.dart';
+import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/event_row.dart';
 
 class TimelineView extends StatelessWidget {
-  const TimelineView({super.key});
+  final void Function(Event)? onEventTap;
+
+  const TimelineView({super.key, this.onEventTap});
 
   static const List<Color> selectedColors = [
     Colors.blueAccent,
@@ -19,8 +22,7 @@ class TimelineView extends StatelessWidget {
   ];
 
   static const double laneHeight = 40;
-  static const double minGroupHeightMobile =
-      120; // min height per group on mobile
+  static const double minGroupHeightMobile = 120;
   static const int maxVisibleGroupsMobile = 5;
 
   bool get isMobile =>
@@ -45,7 +47,6 @@ class TimelineView extends StatelessWidget {
         final totalHeight = constraints.maxHeight;
         final groupCount = selectedGroups.length;
 
-        // Desktop or <= 5 groups: Fit all groups in available height
         if (!isMobile || groupCount <= maxVisibleGroupsMobile) {
           final heightPerGroup = totalHeight / groupCount;
           final maxLanes = heightPerGroup ~/ laneHeight;
@@ -77,7 +78,6 @@ class TimelineView extends StatelessWidget {
           );
         }
 
-        // Mobile: more than 5 groups -> scrollable list
         return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
           itemCount: selectedGroups.length,
@@ -163,6 +163,7 @@ class TimelineView extends StatelessWidget {
                 group: group,
                 visibleStart: visibleStart,
                 visibleEnd: visibleEnd,
+                onEventTap: onEventTap,
               ),
             ),
           ),

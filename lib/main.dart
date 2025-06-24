@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:flutter_map/flutter_map.dart'; // <== for MapController
 import 'package:provider/provider.dart';
@@ -51,8 +52,6 @@ void main() async {
         ChangeNotifierProvider<ResearchGroupsProvider>.value(
           value: researchGroupsProvider,
         ),
-
-        /// 💡 Register MapMarkerProvider **after** its dependencies
         ChangeNotifierProvider<MapMarkerProvider>(
           create:
               (_) => MapMarkerProvider(
@@ -60,6 +59,9 @@ void main() async {
                 groupProvider: researchGroupsProvider,
                 timeProvider: timelineProvider,
               ),
+        ),
+        ChangeNotifierProvider<SelectedEventProvider>(
+          create: (_) => SelectedEventProvider(),
         ),
       ],
       child: const MainApp(),
