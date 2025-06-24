@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/research_group.dart';
+import 'package:map_timeline_view/widgets/event_pop_up.dart';
 
 class EventRow extends StatelessWidget {
   final ResearchGroup group;
@@ -45,21 +48,24 @@ class EventRow extends StatelessWidget {
                   return Positioned(
                     top: laneIndex * laneHeight,
                     left: left,
-                    child: Container(
-                      width: width,
-                      height: laneHeight - 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 2),
-                      decoration: BoxDecoration(
-                        color: Colors.blueAccent,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Center(
-                        child: Text(
-                          event.type.name,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                            overflow: TextOverflow.ellipsis,
+                    child: GestureDetector(
+                      onTap: () => _showEventDetails(context, event),
+                      child: Container(
+                        width: width,
+                        height: laneHeight - 4,
+                        margin: const EdgeInsets.symmetric(horizontal: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.blueAccent,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Center(
+                          child: Text(
+                            event.type.name,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
                         ),
                       ),
@@ -121,5 +127,27 @@ class EventRow extends StatelessWidget {
     }
 
     return lanes;
+  }
+
+  void _showEventDetails(BuildContext context, Event event) {
+    if (_isDesktop()) {
+      debugPrint('Desktop mode: event tapped');
+      return;
+    }
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (_) => EventPopUpWidget(event: event),
+    );
+  }
+
+  bool _isDesktop() {
+    return ![
+      TargetPlatform.iOS,
+      TargetPlatform.android,
+      TargetPlatform.fuchsia,
+    ].contains(defaultTargetPlatform);
   }
 }
