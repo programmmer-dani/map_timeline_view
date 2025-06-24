@@ -90,8 +90,8 @@ class MapMarkerProvider extends ChangeNotifier {
           );
           
           final isInTime =
-              !normalizedSelectedTime.isBefore(event.start) &&
-              !normalizedSelectedTime.isAfter(event.end);
+              event.start.isBefore(selectedTime) &&
+              event.end.isAfter(selectedTime);
           final isInBounds = bounds.contains(
             LatLng(event.latitude, event.longitude),
           );
@@ -99,6 +99,7 @@ class MapMarkerProvider extends ChangeNotifier {
           print('Event: ${event.title} - Start: ${event.start}, End: ${event.end}');
           print('Normalized selected time: $normalizedSelectedTime');
           print('Event: ${event.title} - In time: $isInTime, In bounds: $isInBounds');
+          print('Event: ${event.title} - Start before selected: ${event.start.isBefore(selectedTime)}, End after selected: ${event.end.isAfter(selectedTime)}');
 
           if (isInTime && isInBounds) {
             individualMarkers.add(
