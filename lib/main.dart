@@ -52,16 +52,10 @@ void main() async {
           value: researchGroupsProvider,
         ),
         ChangeNotifierProxyProvider<EventsProvider, MapMarkerProvider>(
-          create:
-              (_) => MapMarkerProvider(
-                mapController: mapController,
-                events: [], // placeholder, will be updated below
-              ),
+          create: (_) => MapMarkerProvider(mapController: mapController),
           update:
-              (_, eventsProvider, mapMarkerProvider) => MapMarkerProvider(
-                mapController: mapController,
-                events: eventsProvider.events,
-              ),
+              (_, eventsProvider, mapMarkerProvider) =>
+                  MapMarkerProvider(mapController: mapController),
         ),
         ChangeNotifierProvider<SelectedEventProvider>(
           create: (_) => SelectedEventProvider(),

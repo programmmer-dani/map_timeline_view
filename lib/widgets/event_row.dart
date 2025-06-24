@@ -64,7 +64,7 @@ class EventRow extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            event.type.name,
+                            event.title,
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
