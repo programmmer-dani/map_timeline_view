@@ -22,6 +22,7 @@ class MapViewState extends State<MapView> {
     if (markerProvider == null) {
       markerProvider = Provider.of<MapMarkerProvider>(context, listen: false);
       markerProvider!.addListener(_onMarkerProviderChanged);
+      markerProvider!.recalculateMarkers(context); // initial calculation
     }
   }
 
@@ -50,7 +51,7 @@ class MapViewState extends State<MapView> {
           _debounceTimer?.cancel();
           _debounceTimer = Timer(
             const Duration(milliseconds: 200),
-            () => markerProvider.recalculateMarkers(),
+            () => markerProvider.recalculateMarkers(context),
           );
         },
       ),

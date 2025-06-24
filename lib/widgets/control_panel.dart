@@ -36,7 +36,7 @@ class _ControlPanelState extends State<ControlPanel> {
         context,
         listen: false,
       );
-      markerProvider.recalculateMarkers();
+      markerProvider.recalculateMarkers(context);
     });
   }
 
@@ -54,8 +54,8 @@ class _ControlPanelState extends State<ControlPanel> {
           child: SizedBox(
             width: media.width * 0.9,
             height: media.height * 0.7,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
+            child: const Padding(
+              padding: EdgeInsets.all(16.0),
               child: ResearchGroupSelectorGrid(),
             ),
           ),
@@ -85,7 +85,6 @@ class _ControlPanelState extends State<ControlPanel> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Left side: Search + Buttons
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: isMobile ? 16 : 24),
                   child: SizedBox(
@@ -182,7 +181,6 @@ class _ControlPanelState extends State<ControlPanel> {
                     ),
                   ),
                 ),
-                // Right side: Time slider
                 Expanded(
                   child: Padding(
                     padding: EdgeInsets.only(right: isMobile ? 16 : 24),

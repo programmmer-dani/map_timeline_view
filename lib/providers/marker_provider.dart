@@ -1,56 +1,84 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:latlong2/latlong.dart';
-import '../entities/event_type.dart';
-import '../providers/time_provider.dart';
-import '../providers/researchgroup_provider.dart';
-
+import 'package:flutter/foundation.dart'
+    show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_map/flutter_map.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:map_timeline_view/entities/event.dart';
+import 'package:map_timeline_view/entities/event_type.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/widgets/event_pop_up.dart';
+import 'package:provider/provider.dart';
 
 class MapMarkerProvider extends ChangeNotifier {
+  final List<Event> _events;
   final MapController mapController;
-
   List<Marker> _markers = [];
+
+  MapMarkerProvider({required this.mapController, required List<Event> events})
+    : _events = events;
+
   List<Marker> get markers => _markers;
 
-  final ResearchGroupsProvider groupProvider;
-  final TimelineRangeProvider timeProvider;
+  void recalculateMarkers(BuildContext context) {
+    try {
+      final bounds = mapController.bounds;
+      if (bounds == null) return;
 
-  MapMarkerProvider({
-    required this.mapController,
-    required this.groupProvider,
-    required this.timeProvider,
-  });
+      final timeProvider = Provider.of<TimelineRangeProvider>(
+        context,
+        listen: false,
+      );
+      final selectedTime = timeProvider.selectedTime;
 
-  void recalculateMarkers() {
-    final bounds = mapController.camera.visibleBounds;
-    final selectedTime = timeProvider.selectedTime;
-
-    final newMarkers = <Marker>[];
-    for (final group in groupProvider.groups) {
-      if (!group.isSelected) continue;
-      for (final event in group.events) {
+      final newMarkers = <Marker>[];
+      for (final event in _events) {
         final isInTime =
             !selectedTime.isBefore(event.start) &&
             !selectedTime.isAfter(event.end);
         final isInBounds = bounds.contains(
           LatLng(event.latitude, event.longitude),
         );
+
         if (isInTime && isInBounds) {
           newMarkers.add(
             Marker(
-              width: 30,
-              height: 30,
+              width: 40,
+              height: 40,
               point: LatLng(event.latitude, event.longitude),
-              child: _getEventIcon(event.type),
+              child: GestureDetector(
+                onTap: () {
+                  final selectedEventProvider =
+                      Provider.of<SelectedEventProvider>(
+                        context,
+                        listen: false,
+                      );
+                  selectedEventProvider.select(event);
+
+                  if (_isMobile()) {
+                    showModalBottomSheet(
+                      context: context,
+                      shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.vertical(
+                          top: Radius.circular(16),
+                        ),
+                      ),
+                      builder: (_) => const EventPopUpWidget(),
+                    );
+                  }
+                },
+                child: _getEventIcon(event.type),
+              ),
             ),
           );
         }
       }
-    }
 
-    _markers = newMarkers;
-    notifyListeners();
+      _markers = newMarkers;
+      notifyListeners();
+    } catch (e) {
+      debugPrint('MapController not ready yet: $e');
+    }
   }
 
   Widget _getEventIcon(EventType type) {
@@ -70,5 +98,10 @@ class MapMarkerProvider extends ChangeNotifier {
       default:
         return const Icon(Icons.location_on, color: Colors.black, size: 28);
     }
+  }
+
+  bool _isMobile() {
+    return defaultTargetPlatform == TargetPlatform.iOS ||
+        defaultTargetPlatform == TargetPlatform.android;
   }
 }
