@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/widgets/add_event_widget.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
 import 'package:map_timeline_view/widgets/notifications.dart';
 import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
@@ -130,7 +131,11 @@ class _ControlPanelState extends State<ControlPanel> {
                                 padding: EdgeInsets.zero,
                                 constraints: const BoxConstraints(),
                                 onPressed: () {
-                                  // Implement add action if needed
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (_) => const AddEventScreen(),
+                                    ),
+                                  );
                                 },
                               ),
                               if (isMobile)
