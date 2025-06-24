@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:map_timeline_view/desktop/widgets/event_preview_panel.dart';
+import 'package:map_timeline_view/widgets/notifications.dart';
 import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:provider/provider.dart';
@@ -64,15 +65,7 @@ class DesktopMapLayout extends StatelessWidget {
                 children: [
                   const Expanded(child: ResearchGroupSelectorGrid()),
                   Expanded(
-                    child: Container(
-                      color: Colors.green.shade50,
-                      child: const Center(
-                        child: Text(
-                          'Notification Panel',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
-                    ),
+                    child: const NotificationCenterWidget()
                   ),
                   Expanded(
                     child: Container(

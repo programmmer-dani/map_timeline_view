@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/widgets/controlpanel_slider.dart';
+import 'package:map_timeline_view/widgets/notifications.dart';
 import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
 import 'package:provider/provider.dart';
 
@@ -159,7 +160,13 @@ class _ControlPanelState extends State<ControlPanel> {
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
                                     onPressed: () {
-                                      // Implement notifications logic
+                                      Navigator.of(context).push(
+                                        MaterialPageRoute(
+                                          builder:
+                                              (_) =>
+                                                  const NotificationCenterWidget(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ),
