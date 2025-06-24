@@ -158,14 +158,11 @@ class TimelineView extends StatelessWidget {
               borderRadius: BorderRadius.circular(6),
             ),
             padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-            child: Column(
-              children: List.generate(
-                maxLanes,
-                (laneIndex) => EventRow(
-                  group: group,
-                  visibleStart: visibleStart,
-                  visibleEnd: visibleEnd,
-                ),
+            child: SizedBox.expand(
+              child: EventRow(
+                group: group,
+                visibleStart: visibleStart,
+                visibleEnd: visibleEnd,
               ),
             ),
           ),

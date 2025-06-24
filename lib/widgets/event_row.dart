@@ -17,50 +17,59 @@ class EventRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final lanes = _assignEventsToLanes(group.events);
-
     const laneHeight = 34.0;
-    final totalHeight = laneHeight * lanes.length;
 
-    return SizedBox(
-      height: totalHeight,
-      child: Stack(
-        clipBehavior: Clip.hardEdge, // This hides overflow
-        children: [
-          for (int laneIndex = 0; laneIndex < lanes.length; laneIndex++)
-            ...lanes[laneIndex].map((event) {
-              final left = _calculateOffset(
-                event.start,
-                visibleStart,
-                visibleEnd,
-              );
-              final width = _calculateWidth(event, visibleStart, visibleEnd);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final rowWidth = constraints.maxWidth;
 
-              return Positioned(
-                top: laneIndex * laneHeight,
-                left: left,
-                child: Container(
-                  width: width,
-                  height: laneHeight - 4,
-                  margin: const EdgeInsets.symmetric(horizontal: 2),
-                  decoration: BoxDecoration(
-                    color: Colors.blueAccent,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                  child: Center(
-                    child: Text(
-                      event.type.name,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        overflow: TextOverflow.ellipsis,
+        return SizedBox(
+          height: lanes.length * laneHeight,
+          child: Stack(
+            children: [
+              for (int laneIndex = 0; laneIndex < lanes.length; laneIndex++)
+                ...lanes[laneIndex].map((event) {
+                  final left = _calculateOffset(
+                    event.start,
+                    visibleStart,
+                    visibleEnd,
+                    rowWidth,
+                  );
+                  final width = _calculateWidth(
+                    event,
+                    visibleStart,
+                    visibleEnd,
+                    rowWidth,
+                  );
+
+                  return Positioned(
+                    top: laneIndex * laneHeight,
+                    left: left,
+                    child: Container(
+                      width: width,
+                      height: laneHeight - 4,
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      decoration: BoxDecoration(
+                        color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: Center(
+                        child: Text(
+                          event.type.name,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                ),
-              );
-            }),
-        ],
-      ),
+                  );
+                }),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -68,24 +77,26 @@ class EventRow extends StatelessWidget {
     DateTime eventStart,
     DateTime visibleStart,
     DateTime visibleEnd,
+    double rowWidth,
   ) {
     final totalMs =
         visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
     final offsetMs =
         eventStart.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
-    return (offsetMs / totalMs) * 300; // Adjust width as needed
+    return (offsetMs / totalMs) * rowWidth;
   }
 
   double _calculateWidth(
     Event event,
     DateTime visibleStart,
     DateTime visibleEnd,
+    double rowWidth,
   ) {
     final totalMs =
         visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
     final durationMs =
         event.end.millisecondsSinceEpoch - event.start.millisecondsSinceEpoch;
-    return (durationMs / totalMs) * 300;
+    return (durationMs / totalMs) * rowWidth;
   }
 
   List<List<Event>> _assignEventsToLanes(List<Event> events) {
