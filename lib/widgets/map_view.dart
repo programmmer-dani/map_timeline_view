@@ -14,26 +14,25 @@ class MapView extends StatefulWidget {
 
 class MapViewState extends State<MapView> {
   Timer? _debounceTimer;
+  MapMarkerProvider? markerProvider;
 
   @override
-  void initState() {
-    super.initState();
-
-    // Listen to map marker provider changes to trigger rebuild (for markers)
-    final markerProvider = context.read<MapMarkerProvider>();
-    markerProvider.addListener(_onMarkerProviderChanged);
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (markerProvider == null) {
+      markerProvider = Provider.of<MapMarkerProvider>(context, listen: false);
+      markerProvider!.addListener(_onMarkerProviderChanged);
+    }
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
-    final markerProvider = context.read<MapMarkerProvider>();
-    markerProvider.removeListener(_onMarkerProviderChanged);
+    markerProvider?.removeListener(_onMarkerProviderChanged);
     super.dispose();
   }
 
   void _onMarkerProviderChanged() {
-    // Called when markers update — just rebuild to refresh marker layer
     if (mounted) setState(() {});
   }
 

@@ -35,8 +35,7 @@ class _SplitViewState extends State<SplitView> {
   @override
   void initState() {
     super.initState();
-    // Start with bottomChild in full screen:
-    _splitRatio = 1.0;
+    _splitRatio = widget.initialSplitRatio; // ✅ respects passed value
   }
 
   @override
@@ -47,7 +46,6 @@ class _SplitViewState extends State<SplitView> {
         final draggerHeight = widget.draggerHeight;
         final halfDraggerHeight = draggerHeight / 2;
 
-        // _splitRatio is how much height bottomChild takes:
         final mapHeight = _splitRatio * height;
         final topHeight = height - mapHeight - draggerHeight;
 
@@ -71,7 +69,7 @@ class _SplitViewState extends State<SplitView> {
               child: widget.bottomChild,
             ),
 
-            // Dragger
+            // Dragger handle
             Positioned(
               top: topHeight + halfDraggerHeight,
               left: 0,
@@ -81,20 +79,20 @@ class _SplitViewState extends State<SplitView> {
                 onVerticalDragUpdate: (details) {
                   setState(() {
                     _splitRatio -= details.delta.dy / height;
-                    _splitRatio = _splitRatio.clamp(0.0, 1.0);
+                    _splitRatio = _splitRatio.clamp(
+                      widget.minSplitRatio,
+                      widget.maxSplitRatio,
+                    );
                   });
                 },
-                onVerticalDragEnd: (details) {
+                onVerticalDragEnd: (_) {
                   setState(() {
-                    // Snap bottomChild to 100% if top is too small (<25%)
+                    // Snap behavior (optional)
                     if ((1.0 - _splitRatio) < 0.25) {
                       _splitRatio = 1.0;
-                    }
-                    // Snap topChild to 100% if bottom is too small (<25%)
-                    else if (_splitRatio < 0.25) {
+                    } else if (_splitRatio < 0.25) {
                       _splitRatio = 0.0;
                     }
-                    // Else leave it wherever the user dropped it
                   });
                 },
                 child: Center(
@@ -131,7 +129,7 @@ class _SplitViewState extends State<SplitView> {
               ),
             ),
 
-            // Start selector overlay (bottom left) — always visible and overlaps everything
+            // Start time overlay
             Positioned(
               bottom: 0,
               left: 0,
@@ -141,7 +139,7 @@ class _SplitViewState extends State<SplitView> {
               ),
             ),
 
-            // End selector overlay (bottom right) — always visible and overlaps everything
+            // End time overlay
             Positioned(
               bottom: 0,
               right: 0,

@@ -1,22 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
+import 'package:map_timeline_view/desktop/widgets/event_preview_panel.dart';
 import 'package:map_timeline_view/widgets/researchgroup_selector.dart';
 import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
+import 'package:provider/provider.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import '../../widgets/map_view.dart';
 import '../../widgets/timeline_widget.dart';
 import '../../widgets/split_view.dart';
 import '../../widgets/control_panel.dart';
 
-class DesktopMapLayout extends StatefulWidget {
-  const DesktopMapLayout({super.key});
+class DesktopMapLayout extends StatelessWidget {
+  DesktopMapLayout({super.key});
 
-  @override
-  State<DesktopMapLayout> createState() => _DesktopMapLayoutState();
-}
-
-class _DesktopMapLayoutState extends State<DesktopMapLayout> {
-  final GlobalKey<MapViewState> mapKey = GlobalKey<MapViewState>();
+  final GlobalKey _splitViewKey = GlobalKey();
 
   bool get isDesktop =>
       ![
@@ -34,43 +32,37 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
       return const Center(child: Text('Desktop layout only'));
     }
 
+    final selectedEvent = context.watch<SelectedEventProvider>().event;
+
     return LayoutBuilder(
       builder: (context, constraints) {
         final availableHeight = constraints.maxHeight;
-
-        // Calculate the height for the SplitView area by subtracting control panel and bottom panels
         final mainHeight =
             availableHeight - controlPanelHeight - bottomPanelHeight;
 
         return Column(
           children: [
-            // Control Panel on top
             SizedBox(height: controlPanelHeight, child: ControlPanel()),
-
             SizedBox(
               height: mainHeight,
               child: SplitView(
-                key: mapKey,
-                initialSplitRatio: 0.85,
-                minSplitRatio: 0.4,
-                maxSplitRatio: 0.9,
+                key: _splitViewKey,
+                initialSplitRatio: 1.0,
+                minSplitRatio: 0.0,
+                maxSplitRatio: 1.0,
                 draggerHeight: 40,
                 isMobile: false,
-                topChild: TimelineView(),
-                bottomChild: MapView(),
+                topChild: const TimelineView(),
+                bottomChild: const MapView(),
                 startSelector: const TimelineStartDisplay(),
                 endSelector: const TimelineEndDisplay(),
               ),
             ),
-
-            // Bottom panels arranged horizontally with expanded space
             SizedBox(
               height: bottomPanelHeight,
               child: Row(
                 children: [
-                  Expanded(
-                    child: ResearchGroupSelectorGrid()
-                  ),
+                  const Expanded(child: ResearchGroupSelectorGrid()),
                   Expanded(
                     child: Container(
                       color: Colors.green.shade50,
@@ -85,12 +77,15 @@ class _DesktopMapLayoutState extends State<DesktopMapLayout> {
                   Expanded(
                     child: Container(
                       color: Colors.orange.shade50,
-                      child: const Center(
-                        child: Text(
-                          'Event Preview Placeholder',
-                          style: TextStyle(fontSize: 18),
-                        ),
-                      ),
+                      child:
+                          selectedEvent != null
+                              ? const EventPreviewPanel()
+                              : const Center(
+                                child: Text(
+                                  'Select an event to preview',
+                                  style: TextStyle(fontSize: 18),
+                                ),
+                              ),
                     ),
                   ),
                 ],
