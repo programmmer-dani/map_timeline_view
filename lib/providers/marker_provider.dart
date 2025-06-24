@@ -285,8 +285,8 @@ class MapMarkerProvider extends ChangeNotifier {
               for (final marker in cluster.markers)
                 ListTile(
                   leading: _getEventIcon(_getEventTypeFromMarker(marker)),
-                  title: Text(_getEventTitleFromMarker(marker)),
-                  subtitle: Text('${marker.point.latitude.toStringAsFixed(4)}, ${marker.point.longitude.toStringAsFixed(4)}'),
+                  title: Text('Event at ${marker.point.latitude.toStringAsFixed(4)}, ${marker.point.longitude.toStringAsFixed(4)}'),
+                  subtitle: Text('Tap to view details'),
                   onTap: () {
                     Navigator.of(context).pop();
                     // Trigger the marker tap event
@@ -310,19 +310,14 @@ class MapMarkerProvider extends ChangeNotifier {
   EventType _getEventTypeFromMarker(Marker marker) {
     // Extract event type from marker's icon
     final icon = marker.child as GestureDetector;
-    final iconWidget = icon.child as Icon;
+    final rowWidget = icon.child as Row;
+    final iconWidget = rowWidget.children[0] as Icon;
     
     if (iconWidget.icon == Icons.water) return EventType.flood;
     if (iconWidget.icon == Icons.bolt) return EventType.storm;
     if (iconWidget.icon == Icons.waves) return EventType.earthquake;
     if (iconWidget.icon == Icons.local_fire_department) return EventType.fire;
     return EventType.storm; // default
-  }
-
-  String _getEventTitleFromMarker(Marker marker) {
-    // This would need to be implemented by storing event data in the marker
-    // For now, return a generic title
-    return 'Event at ${marker.point.latitude.toStringAsFixed(4)}, ${marker.point.longitude.toStringAsFixed(4)}';
   }
 
   Widget _getEventIcon(EventType type) {
