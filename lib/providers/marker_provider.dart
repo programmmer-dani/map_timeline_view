@@ -10,9 +10,20 @@ import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:provider/provider.dart';
 
+// Helper class to represent a cluster of nearby markers
+class MarkerCluster {
+  final LatLng center;
+  final List<Marker> markers;
+  final int count;
+
+  MarkerCluster(this.center, this.markers) : count = markers.length;
+}
+
 class MapMarkerProvider extends ChangeNotifier {
   final MapController mapController;
   List<Marker> _markers = [];
+  static const double _clusterRadius = 50.0; // pixels
+  static const double _clusterThreshold = 2; // minimum markers to form a cluster
 
   MapMarkerProvider({required this.mapController});
 
@@ -44,7 +55,7 @@ class MapMarkerProvider extends ChangeNotifier {
       );
       print('Selected groups: ${selectedGroups.length}');
 
-      final newMarkers = <Marker>[];
+      final individualMarkers = <Marker>[];
 
       for (final group in selectedGroups) {
         print('Processing group: ${group.name} with ${group.events.length} events');
@@ -70,7 +81,7 @@ class MapMarkerProvider extends ChangeNotifier {
           print('Event: ${event.title} - In time: $isInTime, In bounds: $isInBounds');
 
           if (isInTime && isInBounds) {
-            newMarkers.add(
+            individualMarkers.add(
               Marker(
                 width: 40,
                 height: 40,
@@ -105,12 +116,182 @@ class MapMarkerProvider extends ChangeNotifier {
         }
       }
 
-      _markers = newMarkers;
-      print('Total markers created: ${_markers.length}');
+      // Apply clustering to the markers
+      _markers = _applyClustering(individualMarkers, context);
+      print('Total markers after clustering: ${_markers.length}');
       notifyListeners();
     } catch (e) {
       debugPrint('MapController not ready yet: $e');
     }
+  }
+
+  List<Marker> _applyClustering(List<Marker> individualMarkers, BuildContext context) {
+    if (individualMarkers.length < _clusterThreshold) {
+      return individualMarkers; // No clustering needed
+    }
+
+    final clusters = <MarkerCluster>[];
+    final processedMarkers = <Marker>{};
+
+    for (final marker in individualMarkers) {
+      if (processedMarkers.contains(marker)) continue;
+
+      final nearbyMarkers = <Marker>[marker];
+      processedMarkers.add(marker);
+
+      // Find all markers within the cluster radius
+      for (final otherMarker in individualMarkers) {
+        if (processedMarkers.contains(otherMarker)) continue;
+
+        final distance = _calculatePixelDistance(marker.point, otherMarker.point);
+        if (distance <= _clusterRadius) {
+          nearbyMarkers.add(otherMarker);
+          processedMarkers.add(otherMarker);
+        }
+      }
+
+      // Create cluster if we have enough markers
+      if (nearbyMarkers.length >= _clusterThreshold) {
+        final center = _calculateClusterCenter(nearbyMarkers);
+        clusters.add(MarkerCluster(center, nearbyMarkers));
+      } else {
+        // Add individual markers back
+        for (final m in nearbyMarkers) {
+          if (!processedMarkers.contains(m)) {
+            clusters.add(MarkerCluster(m.point, [m]));
+          }
+        }
+      }
+    }
+
+    // Convert clusters to markers
+    final clusteredMarkers = <Marker>[];
+    for (final cluster in clusters) {
+      if (cluster.count == 1) {
+        // Single marker, use original
+        clusteredMarkers.add(cluster.markers.first);
+      } else {
+        // Multiple markers, create cluster marker
+        clusteredMarkers.add(
+          Marker(
+            width: 40,
+            height: 40,
+            point: cluster.center,
+            child: GestureDetector(
+              onTap: () => _showClusterDetails(context, cluster),
+              child: _buildClusterIcon(cluster.count),
+            ),
+          ),
+        );
+      }
+    }
+
+    return clusteredMarkers;
+  }
+
+  double _calculatePixelDistance(LatLng point1, LatLng point2) {
+    // Convert lat/lng to approximate pixel distance
+    // This is a simplified calculation - in a real app you'd use proper projection
+    final latDiff = (point1.latitude - point2.latitude).abs();
+    final lngDiff = (point1.longitude - point2.longitude).abs();
+    
+    // Rough approximation: 1 degree ≈ 111km, and we assume ~100 pixels per degree at zoom level
+    return (latDiff + lngDiff) * 100;
+  }
+
+  LatLng _calculateClusterCenter(List<Marker> markers) {
+    double totalLat = 0;
+    double totalLng = 0;
+    
+    for (final marker in markers) {
+      totalLat += marker.point.latitude;
+      totalLng += marker.point.longitude;
+    }
+    
+    return LatLng(
+      totalLat / markers.length,
+      totalLng / markers.length,
+    );
+  }
+
+  Widget _buildClusterIcon(int count) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.red,
+        shape: BoxShape.circle,
+        border: Border.all(color: Colors.white, width: 2),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Center(
+        child: Text(
+          count.toString(),
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showClusterDetails(BuildContext context, MarkerCluster cluster) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Cluster: ${cluster.count} Events'),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final marker in cluster.markers)
+                ListTile(
+                  leading: _getEventIcon(_getEventTypeFromMarker(marker)),
+                  title: Text(_getEventTitleFromMarker(marker)),
+                  subtitle: Text('${marker.point.latitude.toStringAsFixed(4)}, ${marker.point.longitude.toStringAsFixed(4)}'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    // Trigger the marker tap event
+                    final markerChild = marker.child as GestureDetector;
+                    markerChild.onTap?.call();
+                  },
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  EventType _getEventTypeFromMarker(Marker marker) {
+    // Extract event type from marker's icon
+    final icon = marker.child as GestureDetector;
+    final iconWidget = icon.child as Icon;
+    
+    if (iconWidget.icon == Icons.water) return EventType.flood;
+    if (iconWidget.icon == Icons.bolt) return EventType.storm;
+    if (iconWidget.icon == Icons.waves) return EventType.earthquake;
+    if (iconWidget.icon == Icons.local_fire_department) return EventType.fire;
+    return EventType.storm; // default
+  }
+
+  String _getEventTitleFromMarker(Marker marker) {
+    // This would need to be implemented by storing event data in the marker
+    // For now, return a generic title
+    return 'Event at ${marker.point.latitude.toStringAsFixed(4)}, ${marker.point.longitude.toStringAsFixed(4)}';
   }
 
   Widget _getEventIcon(EventType type) {

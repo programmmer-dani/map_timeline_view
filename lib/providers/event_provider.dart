@@ -430,7 +430,31 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.fire,
     );
 
-    _events.addAll([event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32]);
+    final event33 = Event(
+      id: 'event33',
+      title: 'Amsterdam Storm Analysis',
+      author: user4,
+      start: DateTime(2025, 6, 22, 0, 0),
+      end: DateTime(2025, 6, 22, 23, 59),
+      data: 'Detailed analysis of the storm system affecting Amsterdam region.',
+      latitude: 52.3702,
+      longitude: 4.8952,
+      type: EventType.storm,
+    );
+
+    final event34 = Event(
+      id: 'event34',
+      title: 'Berlin Storm Alert',
+      author: user1,
+      start: DateTime(2025, 6, 22, 8, 0),
+      end: DateTime(2025, 6, 22, 16, 0),
+      data: 'Storm warning issued for Berlin metropolitan area.',
+      latitude: 52.5200,
+      longitude: 13.4050,
+      type: EventType.storm,
+    );
+
+    _events.addAll([event1, event2, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32, event33, event34]);
     print('Added ${_events.length} events to EventsProvider');
 
     // Assign events to groups
@@ -455,6 +479,8 @@ class EventsProvider extends ChangeNotifier {
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event27); // Major Flood Event Rhine Valley
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event30); // Coastal Storm Series
       groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event31); // Urban Flooding Crisis
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event33); // Amsterdam Storm Analysis
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event34); // Berlin Storm Alert
       
       // Seismic Analysis gets earthquake events
       groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event6); // Late June Earthquake
