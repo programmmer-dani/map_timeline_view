@@ -23,9 +23,9 @@ void main() async {
   ]);
 
   final DateTime now = DateTime.now().subtract(const Duration(days: 1));
-  final DateTime start = DateTime.now().subtract(const Duration(days: 2));
-  final DateTime end = DateTime.now();
-  final DateTime selected = now;
+  final DateTime start = DateTime(2025, 6, 1);
+  final DateTime end = DateTime(2025, 8, 1);
+  final DateTime selected = DateTime(2025, 7, 24);
 
   final timelineProvider = TimelineRangeProvider(
     selectedTime: selected,
@@ -51,11 +51,10 @@ void main() async {
         ChangeNotifierProvider<ResearchGroupsProvider>.value(
           value: researchGroupsProvider,
         ),
-        ChangeNotifierProxyProvider<EventsProvider, MapMarkerProvider>(
-          create: (_) => MapMarkerProvider(mapController: mapController),
-          update:
-              (_, eventsProvider, mapMarkerProvider) =>
-                  MapMarkerProvider(mapController: mapController),
+        ChangeNotifierProvider<MapMarkerProvider>(
+          create: (_) => MapMarkerProvider(
+            mapController: mapController,
+          ),
         ),
         ChangeNotifierProvider<SelectedEventProvider>(
           create: (_) => SelectedEventProvider(),

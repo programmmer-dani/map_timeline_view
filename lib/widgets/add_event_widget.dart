@@ -46,7 +46,6 @@ class _AddEventScreenState extends State<AddEventScreen> {
 
       final eventProvider = context.read<EventsProvider>();
       eventProvider.addEvent(event);
-      eventProvider.loadMockData(context.read<ResearchGroupsProvider>());
       context.read<ResearchGroupsProvider>().addEventToGroup(
         _selectedGroup!.id,
         event,

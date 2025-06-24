@@ -45,11 +45,17 @@ class ResearchGroupsProvider extends ChangeNotifier {
 
   // Add event to group
   void addEventToGroup(String groupId, Event event) {
+    print('Adding event "${event.title}" to group ID: $groupId');
     final index = _groups.indexWhere((group) => group.id == groupId);
-    if (index == -1) return;
+    if (index == -1) {
+      print('ERROR: Group with ID $groupId not found!');
+      return;
+    }
     final group = _groups[index];
+    print('Found group: ${group.name}');
     final updatedEvents = List<Event>.from(group.events)..add(event);
     _groups[index] = group.copyWith(events: updatedEvents);
+    print('Group ${group.name} now has ${_groups[index].events.length} events');
     notifyListeners();
   }
 

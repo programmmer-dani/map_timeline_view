@@ -36,7 +36,19 @@ class TimelineView extends StatelessWidget {
     final visibleStart = timeProvider.startingPoint;
     final visibleEnd = timeProvider.endingPoint;
 
+    print('=== Timeline Debug ===');
+    print('Total groups: ${groups.length}');
+    print('Time range: ${visibleStart} to ${visibleEnd}');
+    
+    for (int i = 0; i < groups.length; i++) {
+      print('Group $i: ${groups[i].name} - Selected: ${groups[i].isSelected} - Events: ${groups[i].events.length}');
+      for (int j = 0; j < groups[i].events.length; j++) {
+        print('  Event $j: ${groups[i].events[j].title} (${groups[i].events[j].start} to ${groups[i].events[j].end})');
+      }
+    }
+
     final selectedGroups = groups.where((g) => g.isSelected).toList();
+    print('Selected groups: ${selectedGroups.length}');
 
     if (selectedGroups.isEmpty) {
       return const Center(child: Text('No groups selected.'));

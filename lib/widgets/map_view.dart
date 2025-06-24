@@ -22,7 +22,6 @@ class MapViewState extends State<MapView> {
     if (markerProvider == null) {
       markerProvider = Provider.of<MapMarkerProvider>(context, listen: false);
       markerProvider!.addListener(_onMarkerProviderChanged);
-      markerProvider!.recalculateMarkers(context); // initial calculation
     }
   }
 
@@ -47,6 +46,10 @@ class MapViewState extends State<MapView> {
         initialCenter: LatLng(52.370216, 4.895168),
         initialZoom: 13.0,
         interactiveFlags: InteractiveFlag.all,
+        onMapReady: () {
+          // Trigger initial marker calculation once map is ready
+          markerProvider.recalculateMarkers(context);
+        },
         onMapEvent: (_) {
           _debounceTimer?.cancel();
           _debounceTimer = Timer(

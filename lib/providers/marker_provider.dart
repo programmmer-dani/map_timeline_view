@@ -19,15 +19,21 @@ class MapMarkerProvider extends ChangeNotifier {
   List<Marker> get markers => _markers;
 
   void recalculateMarkers(BuildContext context) {
+    print('=== Recalculating Markers ===');
     try {
       final bounds = mapController.bounds;
-      if (bounds == null) return;
+      if (bounds == null) {
+        print('Map bounds are null, skipping marker calculation');
+        return;
+      }
+      print('Map bounds: ${bounds.southWest} to ${bounds.northEast}');
 
       final timeProvider = Provider.of<TimelineRangeProvider>(
         context,
         listen: false,
       );
       final selectedTime = timeProvider.selectedTime;
+      print('Selected time: $selectedTime');
 
       final researchGroupsProvider = Provider.of<ResearchGroupsProvider>(
         context,
@@ -36,17 +42,32 @@ class MapMarkerProvider extends ChangeNotifier {
       final selectedGroups = researchGroupsProvider.groups.where(
         (g) => g.isSelected,
       );
+      print('Selected groups: ${selectedGroups.length}');
 
       final newMarkers = <Marker>[];
 
       for (final group in selectedGroups) {
+        print('Processing group: ${group.name} with ${group.events.length} events');
         for (final event in group.events) {
+          // Normalize the selected time to remove seconds and milliseconds for comparison
+          final normalizedSelectedTime = DateTime(
+            selectedTime.year,
+            selectedTime.month,
+            selectedTime.day,
+            selectedTime.hour,
+            selectedTime.minute,
+          );
+          
           final isInTime =
-              !selectedTime.isBefore(event.start) &&
-              !selectedTime.isAfter(event.end);
+              !normalizedSelectedTime.isBefore(event.start) &&
+              !normalizedSelectedTime.isAfter(event.end);
           final isInBounds = bounds.contains(
             LatLng(event.latitude, event.longitude),
           );
+
+          print('Event: ${event.title} - Start: ${event.start}, End: ${event.end}');
+          print('Normalized selected time: $normalizedSelectedTime');
+          print('Event: ${event.title} - In time: $isInTime, In bounds: $isInBounds');
 
           if (isInTime && isInBounds) {
             newMarkers.add(
@@ -79,11 +100,13 @@ class MapMarkerProvider extends ChangeNotifier {
                 ),
               ),
             );
+            print('Added marker for event: ${event.title}');
           }
         }
       }
 
       _markers = newMarkers;
+      print('Total markers created: ${_markers.length}');
       notifyListeners();
     } catch (e) {
       debugPrint('MapController not ready yet: $e');

@@ -146,7 +146,7 @@ class EventRow extends StatelessWidget {
               event.end.isAfter(visibleStart));
         }).toList();
 
-    final lanes = _assignEventsToLanes(visibleEvents);
+    final lanes = <List<Event>>[];
 
     for (final event in sorted) {
       bool placed = false;
