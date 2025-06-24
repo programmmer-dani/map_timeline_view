@@ -1,38 +1,81 @@
 import 'package:flutter/material.dart';
-import 'package:map_timeline_view/widgets/control_panel.dart';
-import 'package:map_timeline_view/widgets/split_view.dart';
-import 'package:map_timeline_view/widgets/map_view.dart';
-import 'package:map_timeline_view/widgets/start_and_end_selectors.dart';
 import 'package:map_timeline_view/widgets/timeline_widget.dart';
+import 'package:map_timeline_view/widgets/map_view.dart';
+import 'package:map_timeline_view/widgets/control_panel.dart';
+import 'package:map_timeline_view/widgets/event_viewer.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
+import 'package:provider/provider.dart';
 
-class PhoneMapLayout extends StatefulWidget {
-  const PhoneMapLayout({super.key});
-
-  @override
-  State<PhoneMapLayout> createState() => _PhoneMapLayoutState();
-}
-
-class _PhoneMapLayoutState extends State<PhoneMapLayout> {
-  static const double controlPanelHeight = 78.0;
+class MobileLayout extends StatelessWidget {
+  const MobileLayout({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: Column(
+    return Scaffold(
+      body: Column(
         children: [
-          SizedBox(height: controlPanelHeight, child: ControlPanel()),
-
+          // Top section with timeline and map
           Expanded(
-            child: SplitView(
-              initialSplitRatio: 1.0,
-              minSplitRatio: 0.0,
-              maxSplitRatio: 1.0,
-              isMobile: true,
-              draggerHeight: 40,
-              topChild: const TimelineView(),
-              bottomChild: const MapView(),
-              startSelector: const TimelineStartDisplay(),
-              endSelector: const TimelineEndDisplay(),
+            flex: 2,
+            child: Row(
+              children: [
+                // Timeline section
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: const TimelineWidget(),
+                  ),
+                ),
+                // Map section
+                Expanded(
+                  flex: 1,
+                  child: const MapView(),
+                ),
+              ],
+            ),
+          ),
+          // Bottom section with control panel and event viewer
+          Expanded(
+            flex: 1,
+            child: Row(
+              children: [
+                // Control panel
+                Expanded(
+                  flex: 1,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border(
+                        right: BorderSide(
+                          color: Colors.grey.shade300,
+                          width: 1,
+                        ),
+                      ),
+                    ),
+                    child: const ControlPanel(),
+                  ),
+                ),
+                // Event viewer
+                Expanded(
+                  flex: 1,
+                  child: Consumer<SelectedEventProvider>(
+                    builder: (context, selectedEventProvider, child) {
+                      return selectedEventProvider.event != null
+                          ? FullScreenEventDetails(event: selectedEventProvider.event!)
+                          : const Center(
+                              child: Text('No event selected'),
+                            );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
         ],

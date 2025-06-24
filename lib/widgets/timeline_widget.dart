@@ -3,31 +3,35 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
+import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/event_row.dart';
 
-class TimelineView extends StatelessWidget {
+class TimelineWidget extends StatelessWidget {
   final void Function(Event)? onEventTap;
+  final bool isMobile;
 
-  const TimelineView({super.key, this.onEventTap});
+  const TimelineWidget({
+    super.key,
+    this.onEventTap,
+    this.isMobile = false,
+  });
 
   static const List<Color> selectedColors = [
-    Colors.blueAccent,
-    Colors.green,
-    Colors.orange,
-    Colors.purple,
-    Colors.teal,
-    Colors.redAccent,
+    Color(0xFF2196F3), // Blue
+    Color(0xFF4CAF50), // Green
+    Color(0xFFFF9800), // Orange
+    Color(0xFF9C27B0), // Purple
+    Color(0xFFF44336), // Red
+    Color(0xFF00BCD4), // Cyan
+    Color(0xFF795548), // Brown
+    Color(0xFF607D8B), // Blue Grey
   ];
 
-  static const double laneHeight = 40;
-  static const double minGroupHeightMobile = 120;
-  static const int maxVisibleGroupsMobile = 5;
-
-  bool get isMobile =>
-      defaultTargetPlatform == TargetPlatform.iOS ||
-      defaultTargetPlatform == TargetPlatform.android;
+  static const double laneHeight = 34.0;
+  static const int maxVisibleGroupsMobile = 3;
+  static const double minGroupHeightMobile = 80.0;
 
   @override
   Widget build(BuildContext context) {
@@ -36,19 +40,7 @@ class TimelineView extends StatelessWidget {
     final visibleStart = timeProvider.startingPoint;
     final visibleEnd = timeProvider.endingPoint;
 
-    print('=== Timeline Debug ===');
-    print('Total groups: ${groups.length}');
-    print('Time range: ${visibleStart} to ${visibleEnd}');
-    
-    for (int i = 0; i < groups.length; i++) {
-      print('Group $i: ${groups[i].name} - Selected: ${groups[i].isSelected} - Events: ${groups[i].events.length}');
-      for (int j = 0; j < groups[i].events.length; j++) {
-        print('  Event $j: ${groups[i].events[j].title} (${groups[i].events[j].start} to ${groups[i].events[j].end})');
-      }
-    }
-
-    final selectedGroups = groups.where((g) => g.isSelected).toList();
-    print('Selected groups: ${selectedGroups.length}');
+    final selectedGroups = groups.where((g) => g.isSelected == true).toList();
 
     if (selectedGroups.isEmpty) {
       return const Center(child: Text('No groups selected.'));
@@ -56,37 +48,35 @@ class TimelineView extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final totalHeight = constraints.maxHeight;
+        final totalHeight = constraints.maxHeight.clamp(0.0, double.infinity);
         final groupCount = selectedGroups.length;
 
         if (!isMobile || groupCount <= maxVisibleGroupsMobile) {
-          final heightPerGroup = totalHeight / groupCount;
-          final maxLanes = heightPerGroup ~/ laneHeight;
+          final heightPerGroup = groupCount > 0 ? totalHeight / groupCount : 0;
+          final maxLanes = heightPerGroup > 0 ? (heightPerGroup / laneHeight).floor() : 1;
 
           return Column(
-            children:
-                selectedGroups.asMap().entries.map((entry) {
-                  final index = entry.key;
-                  final group = entry.value;
-                  final baseColor =
-                      selectedColors[index % selectedColors.length];
-                  final textColor = Colors.white;
-                  final eventRowColor = baseColor.withOpacity(0.15);
+            children: selectedGroups.asMap().entries.map((entry) {
+              final index = entry.key;
+              final group = entry.value;
+              final baseColor = selectedColors[index % selectedColors.length];
+              final textColor = Colors.white;
+              final eventRowColor = baseColor.withOpacity(0.15);
 
-                  return SizedBox(
-                    height: heightPerGroup,
-                    child: _buildGroupRow(
-                      group: group,
-                      baseColor: baseColor,
-                      textColor: textColor,
-                      eventRowColor: eventRowColor,
-                      visibleStart: visibleStart,
-                      visibleEnd: visibleEnd,
-                      maxLanes: maxLanes,
-                      context: context,
-                    ),
-                  );
-                }).toList(),
+              return SizedBox(
+                height: heightPerGroup > 0 ? heightPerGroup.toDouble() : 60.0, // Fallback height
+                child: _buildGroupRow(
+                  group: group,
+                  baseColor: baseColor,
+                  textColor: textColor,
+                  eventRowColor: eventRowColor,
+                  visibleStart: visibleStart,
+                  visibleEnd: visibleEnd,
+                  maxLanes: maxLanes > 0 ? maxLanes : 1, // Ensure at least 1 lane
+                  context: context,
+                ),
+              );
+            }).toList(),
           );
         }
 
@@ -176,6 +166,7 @@ class TimelineView extends StatelessWidget {
                 visibleStart: visibleStart,
                 visibleEnd: visibleEnd,
                 onEventTap: onEventTap,
+                maxLanes: maxLanes,
               ),
             ),
           ),

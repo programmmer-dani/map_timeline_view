@@ -7,11 +7,65 @@ import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 
+// Helper class to represent a cluster of overlapping events within a group
+class GroupEventCluster {
+  final List<Event> events;
+  final DateTime start;
+  final DateTime end;
+  final int count;
+  final Color dominantColor;
+  final String dominantType;
+
+  GroupEventCluster(this.events)
+      : start = events.map((e) => e.start).reduce((a, b) => a.isBefore(b) ? a : b),
+        end = events.map((e) => e.end).reduce((a, b) => a.isAfter(b) ? a : b),
+        count = events.length,
+        dominantType = _getDominantEventType(events),
+        dominantColor = _getColorForEventType(_getDominantEventType(events));
+
+  String get title => '$count Events ($dominantType)';
+
+  static String _getDominantEventType(List<Event> events) {
+    final typeCounts = <String, int>{};
+    for (final event in events) {
+      final typeName = event.type.name;
+      typeCounts[typeName] = (typeCounts[typeName] ?? 0) + 1;
+    }
+    
+    String dominantType = 'Mixed';
+    int maxCount = 0;
+    for (final entry in typeCounts.entries) {
+      if (entry.value > maxCount) {
+        maxCount = entry.value;
+        dominantType = entry.key;
+      }
+    }
+    
+    return dominantType;
+  }
+
+  static Color _getColorForEventType(String eventType) {
+    switch (eventType.toLowerCase()) {
+      case 'storm':
+        return Colors.orange;
+      case 'flood':
+        return Colors.blue;
+      case 'fire':
+        return Colors.red;
+      case 'earthquake':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+}
+
 class EventRow extends StatelessWidget {
   final ResearchGroup group;
   final DateTime visibleStart;
   final DateTime visibleEnd;
   final void Function(Event)? onEventTap; // Optional legacy support
+  final int maxLanes; // Maximum number of lanes available
 
   const EventRow({
     super.key,
@@ -19,63 +73,168 @@ class EventRow extends StatelessWidget {
     required this.visibleStart,
     required this.visibleEnd,
     this.onEventTap,
+    this.maxLanes = 3, // Default to 3 lanes
   });
 
   @override
   Widget build(BuildContext context) {
-    final lanes = _assignEventsToLanes(group.events);
+    final visibleEvents = group.events.where((event) {
+      return (event.start.isBefore(visibleEnd) && event.end.isAfter(visibleStart));
+    }).toList();
+
+    // First, try to assign events to lanes normally
+    final lanes = _assignEventsToLanes(visibleEvents);
     const laneHeight = 34.0;
+    
+    // Check if we need clustering based on available space
+    final needsClustering = lanes.length > maxLanes; // If we need more lanes than available, consider clustering
+    
+    List<GroupEventCluster> clusters = [];
+    List<Event> individualEvents = visibleEvents;
+    
+    if (needsClustering) {
+      // Only cluster if we have too many overlapping events to display
+      clusters = _detectGroupClusters(visibleEvents);
+      
+      // Get individual events (not part of clusters)
+      final clusteredEventIds = clusters.expand((cluster) => cluster.events.map((e) => e.id)).toSet();
+      individualEvents = visibleEvents.where((event) => !clusteredEventIds.contains(event.id)).toList();
+      
+      // Reassign remaining individual events to lanes
+      lanes.clear();
+      lanes.addAll(_assignEventsToLanes(individualEvents));
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
         final rowWidth = constraints.maxWidth;
+        final totalHeight = (lanes.length * laneHeight) + (clusters.isNotEmpty ? 50.0 : 0.0);
 
         return SizedBox(
-          height: lanes.length * laneHeight,
-          child: Stack(
+          height: totalHeight,
+          child: Column(
             children: [
-              for (int laneIndex = 0; laneIndex < lanes.length; laneIndex++)
-                ...lanes[laneIndex].map((event) {
-                  final left = _calculateOffset(
-                    event.start,
-                    visibleStart,
-                    visibleEnd,
-                    rowWidth,
-                  );
-                  final width = _calculateWidth(
-                    event,
-                    visibleStart,
-                    visibleEnd,
-                    rowWidth,
-                  );
+              // Individual events lanes
+              if (lanes.isNotEmpty)
+                SizedBox(
+                  height: lanes.length * laneHeight,
+                  child: Stack(
+                    children: [
+                      for (int laneIndex = 0; laneIndex < lanes.length; laneIndex++)
+                        ...lanes[laneIndex].map((event) {
+                          final left = _calculateOffset(
+                            event.start,
+                            visibleStart,
+                            visibleEnd,
+                            rowWidth,
+                          );
+                          final width = _calculateWidth(
+                            event,
+                            visibleStart,
+                            visibleEnd,
+                            rowWidth,
+                          );
 
-                  return Positioned(
-                    top: laneIndex * laneHeight,
-                    left: left,
-                    child: GestureDetector(
-                      onTap: () => _handleEventTap(context, event),
-                      child: Container(
-                        width: width,
-                        height: laneHeight - 4,
-                        margin: const EdgeInsets.symmetric(horizontal: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.blueAccent,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Center(
-                          child: Text(
-                            event.title,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                              overflow: TextOverflow.ellipsis,
+                          return Positioned(
+                            top: laneIndex * laneHeight,
+                            left: left,
+                            child: GestureDetector(
+                              onTap: () => _handleEventTap(context, event),
+                              child: Container(
+                                width: width,
+                                height: laneHeight - 4,
+                                margin: const EdgeInsets.symmetric(horizontal: 2),
+                                decoration: BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    event.title,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                    ],
+                  ),
+                ),
+              
+              // Clusters row - only show if we actually need clustering
+              if (clusters.isNotEmpty && needsClustering)
+                SizedBox(
+                  height: 50,
+                  child: Stack(
+                    children: [
+                      for (final cluster in clusters)
+                        Positioned(
+                          left: _calculateOffset(
+                            cluster.start,
+                            visibleStart,
+                            visibleEnd,
+                            rowWidth,
+                          ),
+                          child: GestureDetector(
+                            onTap: () => _showClusterDetails(context, cluster),
+                            child: Container(
+                              width: _calculateClusterWidth(
+                                cluster,
+                                visibleStart,
+                                visibleEnd,
+                                rowWidth,
+                              ),
+                              height: 44,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                color: cluster.dominantColor,
+                                borderRadius: BorderRadius.circular(20),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: cluster.dominantColor.withOpacity(0.5),
+                                    blurRadius: 6,
+                                    offset: const Offset(0, 3),
+                                  ),
+                                ],
+                                border: Border.all(
+                                  color: Colors.white,
+                                  width: 2,
+                                ),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      '${cluster.count}',
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      cluster.dominantType,
+                                      style: TextStyle(
+                                        color: Colors.white.withOpacity(0.9),
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                }),
+                    ],
+                  ),
+                ),
             ],
           ),
         );
@@ -165,5 +324,211 @@ class EventRow extends StatelessWidget {
     }
 
     return lanes;
+  }
+
+  List<GroupEventCluster> _detectGroupClusters(List<Event> events) {
+    if (events.length < 3) return []; // Need at least 3 events for clustering
+
+    final sorted = List<Event>.from(events)..sort((a, b) => a.start.compareTo(b.start));
+    final clusters = <GroupEventCluster>[];
+    final processedEvents = <Event>{};
+
+    for (int i = 0; i < sorted.length; i++) {
+      if (processedEvents.contains(sorted[i])) continue;
+
+      final overlappingEvents = <Event>[sorted[i]];
+      processedEvents.add(sorted[i]);
+
+      // Find all events that overlap with the current event
+      for (int j = i + 1; j < sorted.length; j++) {
+        final otherEvent = sorted[j];
+        if (processedEvents.contains(otherEvent)) continue;
+
+        // Check if events overlap
+        if (_eventsOverlap(sorted[i], otherEvent)) {
+          overlappingEvents.add(otherEvent);
+          processedEvents.add(otherEvent);
+        }
+      }
+
+      // Only create cluster if we have 3 or more overlapping events
+      // This prevents clustering just 2 events that could fit in separate lanes
+      if (overlappingEvents.length >= 3) {
+        clusters.add(GroupEventCluster(overlappingEvents));
+      }
+    }
+
+    // Sort clusters by event count (largest first) and then by start time
+    clusters.sort((a, b) {
+      if (a.count != b.count) {
+        return b.count.compareTo(a.count); // Larger clusters first
+      }
+      return a.start.compareTo(b.start); // Then by start time
+    });
+
+    return clusters;
+  }
+
+  bool _eventsOverlap(Event event1, Event event2) {
+    // Events overlap if one starts before the other ends
+    return event1.start.isBefore(event2.end) && event2.start.isBefore(event1.end);
+  }
+
+  double _calculateClusterWidth(
+    GroupEventCluster cluster,
+    DateTime visibleStart,
+    DateTime visibleEnd,
+    double rowWidth,
+  ) {
+    final totalMs = visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
+    if (totalMs <= 0) return 0.0;
+    final durationMs = cluster.end.millisecondsSinceEpoch - cluster.start.millisecondsSinceEpoch;
+    return (durationMs / totalMs * rowWidth).clamp(0.0, rowWidth);
+  }
+
+  void _showClusterDetails(BuildContext context, GroupEventCluster cluster) {
+    // Group events by type for better organization
+    final eventsByType = <String, List<Event>>{};
+    for (final event in cluster.events) {
+      final typeName = event.type.name;
+      eventsByType.putIfAbsent(typeName, () => []).add(event);
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: [
+            Container(
+              width: 20,
+              height: 20,
+              decoration: BoxDecoration(
+                color: cluster.dominantColor,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                '${group.name} Cluster: ${cluster.title}',
+                style: const TextStyle(fontSize: 18),
+              ),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Time range
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade100,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(Icons.schedule, size: 16),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${_formatDateTime(cluster.start)} - ${_formatDateTime(cluster.end)}',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              
+              // Event type breakdown
+              const Text(
+                'Events by Type:',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+              ),
+              const SizedBox(height: 8),
+              
+              // Event type summary
+              ...eventsByType.entries.map((entry) {
+                final typeName = entry.key;
+                final events = entry.value;
+                final color = _getColorForEventType(typeName);
+                
+                return Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(4),
+                    border: Border(
+                      left: BorderSide(color: color, width: 3),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: color,
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            '$typeName (${events.length})',
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      ...events.map((event) => Padding(
+                        padding: const EdgeInsets.only(left: 20, top: 2),
+                        child: Text(
+                          '• ${event.title} (${_formatDateTime(event.start)} - ${_formatDateTime(event.end)})',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      )),
+                    ],
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Color _getColorForEventType(String eventType) {
+    switch (eventType.toLowerCase()) {
+      case 'storm':
+        return Colors.orange;
+      case 'flood':
+        return Colors.blue;
+      case 'fire':
+        return Colors.red;
+      case 'earthquake':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatDateTime(DateTime dt) {
+    return '${dt.year.toString().padLeft(4, '0')}-'
+        '${dt.month.toString().padLeft(2, '0')}-'
+        '${dt.day.toString().padLeft(2, '0')} '
+        '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
   }
 }
