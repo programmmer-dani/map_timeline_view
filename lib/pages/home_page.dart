@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart' show defaultTargetPlatform, TargetPlatform;
 
-import '../desktop/widgets/desktop_layout.dart'; // desktop layout
-import '../mobile/widgets/mobile_layout.dart'; // mobile layout
+import '../desktop/widgets/desktop_layout.dart';
+import '../mobile/widgets/mobile_layout.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});

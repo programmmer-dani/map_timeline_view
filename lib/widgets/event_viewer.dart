@@ -38,7 +38,6 @@ class FullScreenEventDetails extends StatelessWidget {
             Text(event.data, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 24),
 
-            // Comment section header
             if (event.comments.isNotEmpty) ...[
               const Text(
                 'Comments',

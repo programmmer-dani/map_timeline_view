@@ -7,7 +7,6 @@ import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 
-// Helper class to represent a cluster of overlapping events within a group
 class GroupEventCluster {
   final List<Event> events;
   final DateTime start;
@@ -47,9 +46,9 @@ class EventRow extends StatelessWidget {
   final ResearchGroup group;
   final DateTime visibleStart;
   final DateTime visibleEnd;
-  final void Function(Event)? onEventTap; // Optional legacy support
-  final int maxLanes; // Maximum number of lanes available
-  final Color groupColor; // Color scheme for this research group
+  final void Function(Event)? onEventTap; 
+  final int maxLanes; 
+  final Color groupColor; 
 
   const EventRow({
     super.key,
@@ -57,7 +56,7 @@ class EventRow extends StatelessWidget {
     required this.visibleStart,
     required this.visibleEnd,
     this.onEventTap,
-    this.maxLanes = 3, // Default to 3 lanes
+    this.maxLanes = 3, 
     required this.groupColor,
   });
 
@@ -67,25 +66,20 @@ class EventRow extends StatelessWidget {
       return (event.start.isBefore(visibleEnd) && event.end.isAfter(visibleStart));
     }).toList();
 
-    // First, try to assign events to lanes normally
     final lanes = _assignEventsToLanes(visibleEvents);
     const laneHeight = 34.0;
     
-    // Check if we need clustering based on available space
-    final needsClustering = lanes.length > maxLanes; // If we need more lanes than available, consider clustering
+    final needsClustering = lanes.length > maxLanes; 
     
     List<GroupEventCluster> clusters = [];
     List<Event> individualEvents = visibleEvents;
     
     if (needsClustering) {
-      // Only cluster if we have too many overlapping events to display
       clusters = _detectGroupClusters(visibleEvents);
       
-      // Get individual events (not part of clusters)
       final clusteredEventIds = clusters.expand((cluster) => cluster.events.map((e) => e.id)).toSet();
       individualEvents = visibleEvents.where((event) => !clusteredEventIds.contains(event.id)).toList();
       
-      // Reassign remaining individual events to lanes
       lanes.clear();
       lanes.addAll(_assignEventsToLanes(individualEvents));
     }
@@ -99,7 +93,6 @@ class EventRow extends StatelessWidget {
           height: totalHeight,
           child: Column(
             children: [
-              // Individual events lanes
               if (lanes.isNotEmpty)
                 SizedBox(
                   height: lanes.length * laneHeight,
@@ -158,7 +151,6 @@ class EventRow extends StatelessWidget {
                   ),
                 ),
               
-              // Clusters row - only show if we actually need clustering
               if (clusters.isNotEmpty && needsClustering)
                 SizedBox(
                   height: 50,
@@ -319,7 +311,7 @@ class EventRow extends StatelessWidget {
   }
 
   List<GroupEventCluster> _detectGroupClusters(List<Event> events) {
-    if (events.length < 3) return []; // Need at least 3 events for clustering
+    if (events.length < 3) return []; 
 
     final sorted = List<Event>.from(events)..sort((a, b) => a.start.compareTo(b.start));
     final clusters = <GroupEventCluster>[];
@@ -331,38 +323,32 @@ class EventRow extends StatelessWidget {
       final overlappingEvents = <Event>[sorted[i]];
       processedEvents.add(sorted[i]);
 
-      // Find all events that overlap with the current event
       for (int j = i + 1; j < sorted.length; j++) {
         final otherEvent = sorted[j];
         if (processedEvents.contains(otherEvent)) continue;
 
-        // Check if events overlap
         if (_eventsOverlap(sorted[i], otherEvent)) {
           overlappingEvents.add(otherEvent);
           processedEvents.add(otherEvent);
         }
       }
 
-      // Only create cluster if we have 3 or more overlapping events
-      // This prevents clustering just 2 events that could fit in separate lanes
       if (overlappingEvents.length >= 3) {
         clusters.add(GroupEventCluster(overlappingEvents));
       }
     }
 
-    // Sort clusters by event count (largest first) and then by start time
     clusters.sort((a, b) {
       if (a.count != b.count) {
-        return b.count.compareTo(a.count); // Larger clusters first
+        return b.count.compareTo(a.count); 
       }
-      return a.start.compareTo(b.start); // Then by start time
+      return a.start.compareTo(b.start); 
     });
 
     return clusters;
   }
 
   bool _eventsOverlap(Event event1, Event event2) {
-    // Events overlap if one starts before the other ends
     return event1.start.isBefore(event2.end) && event2.start.isBefore(event1.end);
   }
 
@@ -379,7 +365,6 @@ class EventRow extends StatelessWidget {
   }
 
   void _showClusterDetails(BuildContext context, GroupEventCluster cluster) {
-    // Group events by type for better organization
     final eventsByType = <String, List<Event>>{};
     for (final event in cluster.events) {
       final typeName = event.type.name;
@@ -414,7 +399,6 @@ class EventRow extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Time range
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -434,14 +418,12 @@ class EventRow extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               
-              // Event type breakdown
               const Text(
                 'Events by Type:',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
               ),
               const SizedBox(height: 8),
               
-              // Event type summary
               ...eventsByType.entries.map((entry) {
                 final typeName = entry.key;
                 final events = entry.value;

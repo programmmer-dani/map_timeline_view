@@ -76,36 +76,34 @@ class _ControlPanelState extends State<ControlPanel> {
   }
 
   void _onEventSelected(Event event) {
-    final searchProvider = Provider.of<SearchProvider>(
-      context,
-      listen: false,
-    );
+    final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     searchProvider.selectEvent(event, context);
     _removeOverlay();
   }
 
   void _showOverlay(List<Event> suggestions) {
     _removeOverlay();
-    
+
     if (suggestions.isEmpty) return;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Positioned(
-        width: widget.isMobile ? 160 : 200,
-        child: CompositedTransformFollower(
-          link: _layerLink,
-          showWhenUnlinked: false,
-          offset: const Offset(0, 40), // Position below the search field
-          child: Material(
-            elevation: 8,
-            borderRadius: BorderRadius.circular(8),
-            child: SearchSuggestions(
-              suggestions: suggestions,
-              onEventSelected: _onEventSelected,
+      builder:
+          (context) => Positioned(
+            width: widget.isMobile ? 160 : 200,
+            child: CompositedTransformFollower(
+              link: _layerLink,
+              showWhenUnlinked: false,
+              offset: const Offset(0, 40),
+              child: Material(
+                elevation: 8,
+                borderRadius: BorderRadius.circular(8),
+                child: SearchSuggestions(
+                  suggestions: suggestions,
+                  onEventSelected: _onEventSelected,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
     );
 
     Overlay.of(context).insert(_overlayEntry!);
@@ -148,8 +146,8 @@ class _ControlPanelState extends State<ControlPanel> {
                       children: [
                         Consumer<SearchProvider>(
                           builder: (context, searchProvider, child) {
-                            // Show/hide overlay based on search state
-                            if (searchProvider.isSearching && searchProvider.suggestions.isNotEmpty) {
+                            if (searchProvider.isSearching &&
+                                searchProvider.suggestions.isNotEmpty) {
                               WidgetsBinding.instance.addPostFrameCallback((_) {
                                 _showOverlay(searchProvider.suggestions);
                               });
@@ -180,21 +178,27 @@ class _ControlPanelState extends State<ControlPanel> {
                                       borderRadius: BorderRadius.circular(4),
                                       borderSide: BorderSide.none,
                                     ),
-                                    suffixIcon: searchProvider.isSearching
-                                        ? IconButton(
-                                            icon: const Icon(Icons.clear, size: 16),
-                                            onPressed: () {
-                                              searchProvider.clearSearch();
-                                              _removeOverlay();
-                                            },
-                                            padding: EdgeInsets.zero,
-                                            constraints: const BoxConstraints(),
-                                          )
-                                        : null,
+                                    suffixIcon:
+                                        searchProvider.isSearching
+                                            ? IconButton(
+                                              icon: const Icon(
+                                                Icons.clear,
+                                                size: 16,
+                                              ),
+                                              onPressed: () {
+                                                searchProvider.clearSearch();
+                                                _removeOverlay();
+                                              },
+                                              padding: EdgeInsets.zero,
+                                              constraints:
+                                                  const BoxConstraints(),
+                                            )
+                                            : null,
                                   ),
                                   onChanged: searchProvider.updateSearchQuery,
                                   onTap: () {
-                                    if (searchProvider.isSearching && searchProvider.suggestions.isNotEmpty) {
+                                    if (searchProvider.isSearching &&
+                                        searchProvider.suggestions.isNotEmpty) {
                                       _showOverlay(searchProvider.suggestions);
                                     }
                                   },

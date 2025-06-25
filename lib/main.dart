@@ -13,7 +13,7 @@ import 'pages/login_page.dart';
 
 void main() async {
   ErrorWidget.builder = (FlutterErrorDetails details) {
-    return Container(); // or return a custom widget if you prefer
+    return Container();
   };
 
   WidgetsFlutterBinding.ensureInitialized();

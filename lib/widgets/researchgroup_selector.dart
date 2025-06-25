@@ -24,10 +24,10 @@ class ResearchGroupSelectorGrid extends StatelessWidget {
           Expanded(
             child: GridView.builder(
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2, // two columns
+                crossAxisCount: 2, 
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
-                childAspectRatio: 3.5, // wider boxes
+                childAspectRatio: 3.5, 
               ),
               itemCount: groups.length,
               itemBuilder: (context, index) {

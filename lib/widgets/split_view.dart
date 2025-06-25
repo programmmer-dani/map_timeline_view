@@ -35,7 +35,7 @@ class _SplitViewState extends State<SplitView> {
   @override
   void initState() {
     super.initState();
-    _splitRatio = widget.initialSplitRatio; // ✅ respects passed value
+    _splitRatio = widget.initialSplitRatio;
   }
 
   @override
@@ -51,7 +51,6 @@ class _SplitViewState extends State<SplitView> {
 
         return Stack(
           children: [
-            // Top child
             Positioned(
               top: 0,
               left: 0,
@@ -60,7 +59,6 @@ class _SplitViewState extends State<SplitView> {
               child: widget.topChild,
             ),
 
-            // Bottom child
             Positioned(
               top: topHeight + draggerHeight,
               left: 0,
@@ -69,7 +67,6 @@ class _SplitViewState extends State<SplitView> {
               child: widget.bottomChild,
             ),
 
-            // Dragger handle
             Positioned(
               top: topHeight + halfDraggerHeight,
               left: 0,
@@ -87,7 +84,6 @@ class _SplitViewState extends State<SplitView> {
                 },
                 onVerticalDragEnd: (_) {
                   setState(() {
-                    // Snap behavior (optional)
                     if ((1.0 - _splitRatio) < 0.25) {
                       _splitRatio = 1.0;
                     } else if (_splitRatio < 0.25) {
@@ -129,7 +125,6 @@ class _SplitViewState extends State<SplitView> {
               ),
             ),
 
-            // Start time overlay
             Positioned(
               bottom: 0,
               left: 0,
@@ -139,7 +134,6 @@ class _SplitViewState extends State<SplitView> {
               ),
             ),
 
-            // End time overlay
             Positioned(
               bottom: 0,
               right: 0,

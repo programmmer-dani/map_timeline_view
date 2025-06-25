@@ -11,7 +11,6 @@ import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/widgets/timeline_indicator.dart';
 import 'package:provider/provider.dart';
 
-// Helper class to represent a cluster of nearby markers
 class MarkerCluster {
   final LatLng center;
   final List<Marker> markers;
@@ -23,19 +22,18 @@ class MarkerCluster {
 class MapMarkerProvider extends ChangeNotifier {
   final MapController mapController;
   List<Marker> _markers = [];
-  static const double _clusterRadius = 50.0; // pixels
-  static const double _clusterThreshold = 2; // minimum markers to form a cluster
+  static const double _clusterRadius = 50.0; 
+  static const double _clusterThreshold = 2; 
 
-  // Color scheme for research groups
   static const List<Color> selectedColors = [
-    Color(0xFF2196F3), // Blue
-    Color(0xFF4CAF50), // Green
-    Color(0xFFFF9800), // Orange
-    Color(0xFF9C27B0), // Purple
-    Color(0xFFF44336), // Red
-    Color(0xFF00BCD4), // Cyan
-    Color(0xFF795548), // Brown
-    Color(0xFF607D8B), // Blue Grey
+    Color(0xFF2196F3), 
+    Color(0xFF4CAF50), 
+    Color(0xFFFF9800), 
+    Color(0xFF9C27B0), 
+    Color(0xFFF44336), 
+    Color(0xFF00BCD4), 
+    Color(0xFF795548), 
+    Color(0xFF607D8B), 
   ];
 
   MapMarkerProvider({required this.mapController});
@@ -80,7 +78,6 @@ class MapMarkerProvider extends ChangeNotifier {
         final groupColor = _getGroupColor(groupIndex);
         
         for (final event in group.events) {
-          // Normalize the selected time to remove seconds and milliseconds for comparison
           final normalizedSelectedTime = DateTime(
             selectedTime.year,
             selectedTime.month,
@@ -104,7 +101,7 @@ class MapMarkerProvider extends ChangeNotifier {
           if (isInTime && isInBounds) {
             individualMarkers.add(
               Marker(
-                width: 100, // Increased width to accommodate timeline indicator
+                width: 100, 
                 height: 40,
                 point: LatLng(event.latitude, event.longitude),
                 child: GestureDetector(
@@ -148,7 +145,6 @@ class MapMarkerProvider extends ChangeNotifier {
         }
       }
 
-      // Apply clustering to the markers
       _markers = _applyClustering(individualMarkers, context);
       print('Total markers after clustering: ${_markers.length}');
       notifyListeners();
@@ -159,7 +155,7 @@ class MapMarkerProvider extends ChangeNotifier {
 
   List<Marker> _applyClustering(List<Marker> individualMarkers, BuildContext context) {
     if (individualMarkers.length < _clusterThreshold) {
-      return individualMarkers; // No clustering needed
+      return individualMarkers; 
     }
 
     final clusters = <MarkerCluster>[];
@@ -171,7 +167,6 @@ class MapMarkerProvider extends ChangeNotifier {
       final nearbyMarkers = <Marker>[marker];
       processedMarkers.add(marker);
 
-      // Find all markers within the cluster radius
       for (final otherMarker in individualMarkers) {
         if (processedMarkers.contains(otherMarker)) continue;
 
@@ -182,12 +177,10 @@ class MapMarkerProvider extends ChangeNotifier {
         }
       }
 
-      // Create cluster if we have enough markers
       if (nearbyMarkers.length >= _clusterThreshold) {
         final center = _calculateClusterCenter(nearbyMarkers);
         clusters.add(MarkerCluster(center, nearbyMarkers));
       } else {
-        // Add individual markers back
         for (final m in nearbyMarkers) {
           if (!processedMarkers.contains(m)) {
             clusters.add(MarkerCluster(m.point, [m]));
@@ -196,14 +189,11 @@ class MapMarkerProvider extends ChangeNotifier {
       }
     }
 
-    // Convert clusters to markers
     final clusteredMarkers = <Marker>[];
     for (final cluster in clusters) {
       if (cluster.count == 1) {
-        // Single marker, use original
         clusteredMarkers.add(cluster.markers.first);
       } else {
-        // Multiple markers, create cluster marker
         clusteredMarkers.add(
           Marker(
             width: 40,
@@ -222,12 +212,8 @@ class MapMarkerProvider extends ChangeNotifier {
   }
 
   double _calculatePixelDistance(LatLng point1, LatLng point2) {
-    // Convert lat/lng to approximate pixel distance
-    // This is a simplified calculation - in a real app you'd use proper projection
     final latDiff = (point1.latitude - point2.latitude).abs();
     final lngDiff = (point1.longitude - point2.longitude).abs();
-    
-    // Rough approximation: 1 degree ≈ 111km, and we assume ~100 pixels per degree at zoom level
     return (latDiff + lngDiff) * 100;
   }
 
@@ -290,7 +276,6 @@ class MapMarkerProvider extends ChangeNotifier {
                   subtitle: Text('Tap to view details'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    // Trigger the marker tap event
                     final markerChild = marker.child as GestureDetector;
                     markerChild.onTap?.call();
                   },
@@ -309,7 +294,6 @@ class MapMarkerProvider extends ChangeNotifier {
   }
 
   EventType _getEventTypeFromMarker(Marker marker) {
-    // Extract event type from marker's icon
     final icon = marker.child as GestureDetector;
     final rowWidget = icon.child as Row;
     final iconWidget = rowWidget.children[0] as Icon;
@@ -318,7 +302,7 @@ class MapMarkerProvider extends ChangeNotifier {
     if (iconWidget.icon == Icons.bolt) return EventType.storm;
     if (iconWidget.icon == Icons.waves) return EventType.earthquake;
     if (iconWidget.icon == Icons.local_fire_department) return EventType.fire;
-    return EventType.storm; // default
+    return EventType.storm; 
   }
 
   Widget _getEventIcon(EventType type) {

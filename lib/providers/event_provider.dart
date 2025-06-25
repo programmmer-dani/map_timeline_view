@@ -34,7 +34,9 @@ class EventsProvider extends ChangeNotifier {
     print('=== Loading mock events ===');
     print('Groups available: ${groupsProvider.groups.length}');
     for (int i = 0; i < groupsProvider.groups.length; i++) {
-      print('Group $i: ${groupsProvider.groups[i].name} (ID: ${groupsProvider.groups[i].id})');
+      print(
+        'Group $i: ${groupsProvider.groups[i].name} (ID: ${groupsProvider.groups[i].id})',
+      );
     }
 
     final user1 = User(id: 'u1', name: 'Alice');
@@ -42,7 +44,6 @@ class EventsProvider extends ChangeNotifier {
     final user3 = User(id: 'u3', name: 'Bob');
     final user4 = User(id: 'u4', name: 'Carla');
 
-    // June 2025 Events
     final event1 = Event(
       id: 'event1',
       title: 'Early June Storm',
@@ -73,7 +74,8 @@ class EventsProvider extends ChangeNotifier {
       author: user1,
       start: DateTime(2025, 6, 9, 8, 0),
       end: DateTime(2025, 6, 9, 22, 0),
-      data: 'Test event spanning the current selected time for timeline indicator testing.',
+      data:
+          'Test event spanning the current selected time for timeline indicator testing.',
       latitude: 52.3702,
       longitude: 4.8952,
       type: EventType.storm,
@@ -151,7 +153,6 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.flood,
     );
 
-    // July 2025 Events (keeping some for later testing)
     final event9 = Event(
       id: 'event9',
       title: 'Rotterdam Flood Alert',
@@ -200,7 +201,6 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.fire,
     );
 
-    // European Events around June 15-23 with overlaps
     final event13 = Event(
       id: 'event13',
       title: 'Paris Heatwave',
@@ -345,7 +345,6 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.flood,
     );
 
-    // Additional long events in middle of June for clustering testing
     final event25 = Event(
       id: 'event25',
       title: 'Central European Storm System',
@@ -388,7 +387,8 @@ class EventsProvider extends ChangeNotifier {
       author: user4,
       start: DateTime(2025, 6, 13, 10, 0),
       end: DateTime(2025, 6, 20, 16, 0),
-      data: 'Increased seismic activity in the Alpine region requiring monitoring.',
+      data:
+          'Increased seismic activity in the Alpine region requiring monitoring.',
       latitude: 47.3769,
       longitude: 8.5417,
       type: EventType.earthquake,
@@ -436,7 +436,8 @@ class EventsProvider extends ChangeNotifier {
       author: user3,
       start: DateTime(2025, 6, 17, 8, 0),
       end: DateTime(2025, 6, 24, 20, 0),
-      data: 'Formation of a heat dome causing extreme temperatures across Europe.',
+      data:
+          'Formation of a heat dome causing extreme temperatures across Europe.',
       latitude: 48.8566,
       longitude: 2.3522,
       type: EventType.fire,
@@ -466,59 +467,92 @@ class EventsProvider extends ChangeNotifier {
       type: EventType.storm,
     );
 
-    _events.addAll([event1, event2, event2b, event3, event4, event5, event6, event7, event8, event9, event10, event11, event12, event13, event14, event15, event16, event17, event18, event19, event20, event21, event22, event23, event24, event25, event26, event27, event28, event29, event30, event31, event32, event33, event34]);
+    _events.addAll([
+      event1,
+      event2,
+      event2b,
+      event3,
+      event4,
+      event5,
+      event6,
+      event7,
+      event8,
+      event9,
+      event10,
+      event11,
+      event12,
+      event13,
+      event14,
+      event15,
+      event16,
+      event17,
+      event18,
+      event19,
+      event20,
+      event21,
+      event22,
+      event23,
+      event24,
+      event25,
+      event26,
+      event27,
+      event28,
+      event29,
+      event30,
+      event31,
+      event32,
+      event33,
+      event34,
+    ]);
     print('Added ${_events.length} events to EventsProvider');
 
-    // Assign events to groups
     if (groupsProvider.groups.length >= 4) {
       print('Assigning events to groups...');
-      
-      // Hydrology Team gets flood and storm events
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event1); // Early June Storm
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2); // Mid-June Flood Warning
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2b); // June 9th Test Event
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event4); // Summer Solstice Storm
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event5); // Amsterdam storm wojchek
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event8); // June Flooding
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event9); // Rotterdam Flood Alert
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event10); // Severe Storm in The Hague
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event14); // London Storm System
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event15); // Berlin Flooding
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event18); // Amsterdam Extended Storm
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event20); // Prague Flood Warning
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event21); // Barcelona Storm
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event24); // Warsaw Flooding
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event25); // Central European Storm System
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event27); // Major Flood Event Rhine Valley
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event30); // Coastal Storm Series
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event31); // Urban Flooding Crisis
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event33); // Amsterdam Storm Analysis
-      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event34); // Berlin Storm Alert
-      
-      // Seismic Analysis gets earthquake events
-      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event6); // Late June Earthquake
-      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event11); // Earthquake Near Lake Como
-      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event17); // Rome Earthquake Swarm
-      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event22); // Munich Earthquake
-      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event28); // Seismic Activity Alpine Region
-      
-      // Wildfire Watch gets fire events
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event3); // June Heatwave
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event7); // June Heatwave Peak
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event12); // Wildfire Alert in Tuscany
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event13); // Paris Heatwave
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event16); // Madrid Wildfire
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event19); // Vienna Heat Alert
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event23); // Brussels Heatwave
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event26); // Extended Heatwave Central Europe
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event29); // Wildfire Outbreak Southern Europe
-      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event32); // Heat Dome Formation
-      
+
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event1);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event2b);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event4);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event5);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event8);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event9);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event10);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event14);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event15);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event18);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event20);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event21);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event24);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event25);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event27);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event30);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event31);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event33);
+      groupsProvider.addEventToGroup(groupsProvider.groups[0].id, event34);
+
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event6);
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event11);
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event17);
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event22);
+      groupsProvider.addEventToGroup(groupsProvider.groups[1].id, event28);
+
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event3);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event7);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event12);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event13);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event16);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event19);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event23);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event26);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event29);
+      groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event32);
+
       print('Added events to groups');
-      
-      // Print final group states
+
       for (int i = 0; i < groupsProvider.groups.length; i++) {
-        print('Group ${groupsProvider.groups[i].name} now has ${groupsProvider.groups[i].events.length} events');
+        print(
+          'Group ${groupsProvider.groups[i].name} now has ${groupsProvider.groups[i].events.length} events',
+        );
       }
     } else {
       print('ERROR: Not enough groups available!');

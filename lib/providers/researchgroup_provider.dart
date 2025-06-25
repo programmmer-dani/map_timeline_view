@@ -8,19 +8,16 @@ class ResearchGroupsProvider extends ChangeNotifier {
 
   List<ResearchGroup> get groups => List.unmodifiable(_groups);
 
-  // Add new group
   void addGroup(ResearchGroup group) {
     _groups.add(group);
     notifyListeners();
   }
 
-  // Remove group by id
   void removeGroup(String groupId) {
     _groups.removeWhere((group) => group.id == groupId);
     notifyListeners();
   }
 
-  // Add member to a group
   void addMember(String groupId, User member) {
     final index = _groups.indexWhere((group) => group.id == groupId);
     if (index == -1) return;
@@ -32,7 +29,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     }
   }
 
-  // Remove member from group
   void removeMember(String groupId, String memberId) {
     final index = _groups.indexWhere((group) => group.id == groupId);
     if (index == -1) return;
@@ -43,7 +39,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Add event to group
   void addEventToGroup(String groupId, Event event) {
     print('Adding event "${event.title}" to group ID: $groupId');
     final index = _groups.indexWhere((group) => group.id == groupId);
@@ -59,7 +54,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Remove event from group
   void removeEventFromGroup(String groupId, String eventId) {
     final index = _groups.indexWhere((group) => group.id == groupId);
     if (index == -1) return;
@@ -69,7 +63,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Toggle isSelected status for a group
   void toggleGroupSelection(String groupId) {
     final index = _groups.indexWhere((group) => group.id == groupId);
     if (index == -1) return;
@@ -79,7 +72,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  // Optionally clearer separate select/deselect:
   void selectGroup(String groupId) {
     final index = _groups.indexWhere((group) => group.id == groupId);
     if (index == -1) return;
@@ -102,7 +94,6 @@ class ResearchGroupsProvider extends ChangeNotifier {
     }
   }
 
-  // Load some initial mock data
   void loadMockData() {
     final user1 = User(id: 'u1', name: 'Alice');
     final user2 = User(id: 'u2', name: 'Bob');

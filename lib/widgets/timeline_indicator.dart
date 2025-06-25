@@ -64,24 +64,18 @@ class TimelineIndicatorPainter extends CustomPainter {
       ..strokeWidth = 1
       ..strokeCap = StrokeCap.round;
 
-    // Calculate the total duration of the event in minutes
     final totalDuration = event.end.difference(event.start).inMinutes;
     if (totalDuration <= 0) return;
 
-    // Calculate how much of the event is before and after the selected time
     final timeBeforeSelected = selectedTime.difference(event.start).inMinutes;
     final timeAfterSelected = event.end.difference(selectedTime).inMinutes;
 
-    // Calculate the proportions for the horizontal line
-    final totalWidth = size.width - 4; // Leave 2px margin on each side
+    final totalWidth = size.width - 4; 
     final centerX = size.width / 2;
 
-    // Draw the horizontal line representing event duration
-    // The line should show the full event duration, with the dotted line as a reference point
     final eventStartX = centerX - (timeBeforeSelected / totalDuration) * totalWidth;
     final eventEndX = centerX + (timeAfterSelected / totalDuration) * totalWidth;
     
-    // Ensure we don't draw outside bounds
     final startX = eventStartX.clamp(2.0, size.width - 2.0);
     final endX = eventEndX.clamp(2.0, size.width - 2.0);
     
@@ -91,7 +85,6 @@ class TimelineIndicatorPainter extends CustomPainter {
       paint,
     );
 
-    // Draw the vertical dotted line on top (over the horizontal line)
     final dotLength = 2.0;
     final dotGap = 2.0;
     double currentY = 2;
@@ -105,7 +98,6 @@ class TimelineIndicatorPainter extends CustomPainter {
       currentY += dotLength + dotGap;
     }
 
-    // If selected time is within the event, draw a small circle at the center
     if (selectedTime.isAfter(event.start) && selectedTime.isBefore(event.end)) {
       final circlePaint = Paint()
         ..color = groupColor

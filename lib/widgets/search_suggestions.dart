@@ -48,7 +48,7 @@ class SearchSuggestions extends StatelessWidget {
               height: 24,
               child: TimelineIndicator(
                 event: event,
-                selectedTime: DateTime.now(), // This will be updated by the provider
+                selectedTime: DateTime.now(), 
                 groupColor: _getEventColor(event.type),
               ),
             ),

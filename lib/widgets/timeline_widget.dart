@@ -19,14 +19,14 @@ class TimelineWidget extends StatelessWidget {
   });
 
   static const List<Color> selectedColors = [
-    Color(0xFF2196F3), // Blue
-    Color(0xFF4CAF50), // Green
-    Color(0xFFFF9800), // Orange
-    Color(0xFF9C27B0), // Purple
-    Color(0xFFF44336), // Red
-    Color(0xFF00BCD4), // Cyan
-    Color(0xFF795548), // Brown
-    Color(0xFF607D8B), // Blue Grey
+    Color(0xFF2196F3), 
+    Color(0xFF4CAF50), 
+    Color(0xFFFF9800), 
+    Color(0xFF9C27B0), 
+    Color(0xFFF44336), 
+    Color(0xFF00BCD4), 
+    Color(0xFF795548), 
+    Color(0xFF607D8B), 
   ];
 
   static const double laneHeight = 34.0;
@@ -64,7 +64,7 @@ class TimelineWidget extends StatelessWidget {
               final eventRowColor = baseColor.withOpacity(0.15);
 
               return SizedBox(
-                height: heightPerGroup > 0 ? heightPerGroup.toDouble() : 60.0, // Fallback height
+                height: heightPerGroup > 0 ? heightPerGroup.toDouble() : 60.0, 
                 child: _buildGroupRow(
                   group: group,
                   baseColor: baseColor,
@@ -72,7 +72,7 @@ class TimelineWidget extends StatelessWidget {
                   eventRowColor: eventRowColor,
                   visibleStart: visibleStart,
                   visibleEnd: visibleEnd,
-                  maxLanes: maxLanes > 0 ? maxLanes : 1, // Ensure at least 1 lane
+                  maxLanes: maxLanes > 0 ? maxLanes : 1, 
                   context: context,
                 ),
               );

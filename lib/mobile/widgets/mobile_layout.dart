@@ -13,14 +13,12 @@ class MobileLayout extends StatelessWidget {
     return Scaffold(
       body: Column(
         children: [
-          // Top section with control panel
           const ControlPanel(),
-          // Bottom section with split view (timeline and map)
           Expanded(
             child: SplitView(
               topChild: const TimelineWidget(),
               bottomChild: const MapView(),
-              initialSplitRatio: 1.0, // Map takes full screen initially
+              initialSplitRatio: 1.0,
               minSplitRatio: 0.0,
               maxSplitRatio: 1.0,
               draggerHeight: 40,

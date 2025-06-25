@@ -47,7 +47,6 @@ class MapViewState extends State<MapView> {
         initialZoom: 13.0,
         interactiveFlags: InteractiveFlag.all,
         onMapReady: () {
-          // Trigger initial marker calculation once map is ready
           markerProvider.recalculateMarkers(context);
         },
         onMapEvent: (_) {

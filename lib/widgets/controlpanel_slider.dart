@@ -24,7 +24,7 @@ class TimeSlider extends StatelessWidget {
             final double sliderWidth = constraints.maxWidth;
             final double thumbRelativeX = ((selected - start) / (end - start))
                 .clamp(0.0, 1.0);
-            final double estimatedLabelWidth = 90; // Slightly smaller label
+            final double estimatedLabelWidth = 90;
             final double margin = 4;
 
             double desiredLeft =
@@ -35,11 +35,10 @@ class TimeSlider extends StatelessWidget {
             );
 
             return SizedBox(
-              height: 50, // Reduced height
+              height: 50,
               child: Stack(
                 alignment: Alignment.centerLeft,
                 children: [
-                  // Slider
                   Positioned.fill(
                     top: 0,
                     bottom: 18,
@@ -50,8 +49,7 @@ class TimeSlider extends StatelessWidget {
                           enabledThumbRadius: 4,
                         ),
                         overlayShape: SliderComponentShape.noOverlay,
-                        activeTrackColor:
-                            Colors.grey.shade400, // Unified track color
+                        activeTrackColor: Colors.grey.shade400,
                         inactiveTrackColor: Colors.grey.shade400,
                         thumbColor: Colors.white,
                       ),
@@ -73,7 +71,6 @@ class TimeSlider extends StatelessWidget {
                     ),
                   ),
 
-                  // Label under thumb
                   Positioned(
                     left: clampedLeft,
                     bottom: 0,
