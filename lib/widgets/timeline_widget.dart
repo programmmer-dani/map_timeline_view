@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
+import 'package:map_timeline_view/providers/map_bounds_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/widgets/event_row.dart';
@@ -38,6 +39,10 @@ class TimelineWidget extends StatelessWidget {
     context.watch<TimelineRangeProvider>();
     // Listen to selected event changes to trigger rebuilds for highlighting
     context.watch<SelectedEventProvider>();
+    // Listen to map bounds changes to trigger rebuilds for timeline filtering
+    final mapBoundsProvider = context.watch<MapBoundsProvider>();
+    
+    debugPrint('TimelineWidget: initialized: ${mapBoundsProvider.isInitialized}, valid: ${mapBoundsProvider.isValidBounds}');
 
     final selectedGroups = groups.where((g) => g.isSelected == true).toList();
 

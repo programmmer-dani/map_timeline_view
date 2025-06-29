@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/services/visible_events_service.dart';
+import 'package:map_timeline_view/providers/map_bounds_provider.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
@@ -63,11 +64,18 @@ class EventRow extends StatelessWidget {
   Widget build(BuildContext context) {
     // Use centralized service to get visible events for this group
     final visibleEventsService = VisibleEventsService.instance;
+    final mapBoundsProvider = Provider.of<MapBoundsProvider>(context, listen: false);
+    
+    // Get events filtered by time range and map bounds
+    // Only apply bounds filtering if the map has been initialized
     final visibleEvents = visibleEventsService.getVisibleEventsForGroup(
       context: context,
       groupId: group.id,
-      includeMapBoundsFilter: false, // Timeline doesn't use map bounds filtering
+      mapBounds: mapBoundsProvider.currentBounds,
+      includeMapBoundsFilter: mapBoundsProvider.isInitialized && mapBoundsProvider.isValidBounds,
     );
+
+    debugPrint('EventRow (${group.name}): initialized: ${mapBoundsProvider.isInitialized}, valid: ${mapBoundsProvider.isValidBounds}, visible events: ${visibleEvents.length}');
 
     final lanes = _assignEventsToLanes(visibleEvents);
     const laneHeight = 34.0;

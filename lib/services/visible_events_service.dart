@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
@@ -34,23 +33,14 @@ class VisibleEventsService {
         // Time range filter
         final isInTimeRange = event.start.isBefore(visibleEnd) && event.end.isAfter(visibleStart);
         
-        // Map bounds filter (only if bounds are reasonable)
+        // Map bounds filter (only if bounds are provided and filtering is enabled)
         bool isInMapBounds = true;
         if (includeMapBoundsFilter && mapBounds != null) {
-          // Check if bounds are reasonable (not too small or too large)
-          final latSpan = (mapBounds.northEast.latitude - mapBounds.southWest.latitude).abs();
-          final lngSpan = (mapBounds.northEast.longitude - mapBounds.southWest.longitude).abs();
-          
-          // If bounds are too small (< 0.1 degrees) or too large (> 50 degrees), skip bounds filtering
-          if (latSpan < 0.1 || lngSpan < 0.1 || latSpan > 50 || lngSpan > 50) {
-            isInMapBounds = true; // Skip bounds filtering for extreme zoom levels
-          } else {
-            // Normal bounds check
-            isInMapBounds = event.latitude >= mapBounds.southWest.latitude &&
-                event.latitude <= mapBounds.northEast.latitude &&
-                event.longitude >= mapBounds.southWest.longitude &&
-                event.longitude <= mapBounds.northEast.longitude;
-          }
+          // Normal bounds check - let the MapBoundsProvider handle validation
+          isInMapBounds = event.latitude >= mapBounds.southWest.latitude &&
+              event.latitude <= mapBounds.northEast.latitude &&
+              event.longitude >= mapBounds.southWest.longitude &&
+              event.longitude <= mapBounds.northEast.longitude;
         }
         
         return isInTimeRange && isInMapBounds;

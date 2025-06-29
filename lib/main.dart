@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:map_timeline_view/mock_data.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/providers/map_bounds_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/search_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
@@ -65,6 +66,9 @@ void main() async {
         ),
         ChangeNotifierProvider<SearchProvider>(
           create: (_) => SearchProvider(),
+        ),
+        ChangeNotifierProvider<MapBoundsProvider>(
+          create: (_) => MapBoundsProvider(),
         ),
       ],
       child: const MainApp(),
