@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:map_timeline_view/mock_data.dart';
 import 'package:map_timeline_view/providers/event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
@@ -23,7 +24,6 @@ void main() async {
     DeviceOrientation.landscapeRight,
   ]);
 
-  final DateTime now = DateTime.now().subtract(const Duration(days: 1));
   final DateTime start = DateTime(2025, 6, 1);
   final DateTime end = DateTime(2025, 8, 1);
   final DateTime selected = DateTime(2025, 7, 24);
@@ -35,12 +35,15 @@ void main() async {
   );
 
   final researchGroupsProvider = ResearchGroupsProvider();
-  researchGroupsProvider.loadMockData();
-
   final eventsProvider = EventsProvider();
-  eventsProvider.loadMockData(researchGroupsProvider);
-
   final mapController = MapController();
+
+  // Initialize all mock data using the centralized service
+  MockDataService.instance.initializeAllMockData(
+    researchGroupsProvider: researchGroupsProvider,
+    eventsProvider: eventsProvider,
+    timeProvider: timelineProvider,
+  );
 
   runApp(
     MultiProvider(
