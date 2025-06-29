@@ -54,19 +54,7 @@ class MapMarkerProvider extends ChangeNotifier {
     try {
       final mapBoundsProvider = Provider.of<MapBoundsProvider>(context, listen: false);
       final bounds = mapBoundsProvider.currentBounds;
-      final includeMapBoundsFilter = mapBoundsProvider.isInitialized && mapBoundsProvider.isValidBounds;
-      
-      if (bounds == null && includeMapBoundsFilter) {
-        debugPrint('Map bounds are null, skipping marker recalculation');
-        return;
-      }
-
-      // Debug: Log the actual bounds being used
-      if (bounds != null) {
-        debugPrint('Map bounds: ${bounds.southWest.latitude}, ${bounds.southWest.longitude} to ${bounds.northEast.latitude}, ${bounds.northEast.longitude}');
-      } else {
-        debugPrint('Map bounds: null (showing all events)');
-      }
+      final includeMapBoundsFilter = mapBoundsProvider.isInitialized;
       
       // Use centralized service to get visible events
       final visibleEventsService = VisibleEventsService.instance;
@@ -102,7 +90,7 @@ class MapMarkerProvider extends ChangeNotifier {
               child: EventHighlightIndicator(
                 event: event,
                 groupColor: groupColor,
-                opacity: 0.6, // De-highlight non-overlapping events
+                opacity: 0.6,
                 child: GestureDetector(
                   onTap: () {
                     final selectedEventProvider =
@@ -144,10 +132,9 @@ class MapMarkerProvider extends ChangeNotifier {
       }
 
       _markers = _applyClustering(individualMarkers, context);
-      debugPrint('Total markers after clustering: ${_markers.length}');
       notifyListeners();
     } catch (e) {
-      debugPrint('MapController not ready yet: $e');
+      // Map controller not ready yet
     }
   }
 

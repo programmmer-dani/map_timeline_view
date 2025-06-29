@@ -67,15 +67,12 @@ class EventRow extends StatelessWidget {
     final mapBoundsProvider = Provider.of<MapBoundsProvider>(context, listen: false);
     
     // Get events filtered by time range and map bounds
-    // Only apply bounds filtering if the map has been initialized
     final visibleEvents = visibleEventsService.getVisibleEventsForGroup(
       context: context,
       groupId: group.id,
       mapBounds: mapBoundsProvider.currentBounds,
-      includeMapBoundsFilter: mapBoundsProvider.isInitialized && mapBoundsProvider.isValidBounds,
+      includeMapBoundsFilter: mapBoundsProvider.isInitialized,
     );
-
-    debugPrint('EventRow (${group.name}): initialized: ${mapBoundsProvider.isInitialized}, valid: ${mapBoundsProvider.isValidBounds}, visible events: ${visibleEvents.length}');
 
     final lanes = _assignEventsToLanes(visibleEvents);
     const laneHeight = 34.0;
@@ -128,7 +125,7 @@ class EventRow extends StatelessWidget {
                             child: EventHighlightIndicator(
                               event: event,
                               groupColor: groupColor,
-                              opacity: 0.6, // De-highlight non-overlapping events
+                              opacity: 0.6,
                               child: GestureDetector(
                                 onTap: () => _handleEventTap(context, event),
                                 child: Container(
@@ -178,9 +175,9 @@ class EventRow extends StatelessWidget {
                             context,
                           ),
                           child: EventHighlightIndicator(
-                            event: cluster.events.first, // Use first event for highlighting
+                            event: cluster.events.first,
                             groupColor: groupColor,
-                            opacity: 0.6, // De-highlight non-overlapping events
+                            opacity: 0.6,
                             child: GestureDetector(
                               onTap: () => _showClusterDetails(context, cluster),
                               child: Container(

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:map_timeline_view/providers/map_bounds_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 
 class SplitView extends StatefulWidget {
@@ -39,25 +38,6 @@ class _SplitViewState extends State<SplitView> {
   void initState() {
     super.initState();
     _splitRatio = widget.initialSplitRatio;
-  }
-
-  void _onSplitRatioChanged() {
-    // Force a map bounds update when the split ratio changes
-    // This ensures the timeline gets the correct bounds even when the map is minimized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      try {
-        final mapBoundsProvider = Provider.of<MapBoundsProvider>(context, listen: false);
-        final markerProvider = Provider.of<MapMarkerProvider>(context, listen: false);
-        
-        // Force refresh bounds from the map controller
-        mapBoundsProvider.refreshBoundsFromController(markerProvider.mapController);
-        
-        // Also recalculate markers to ensure they're in sync
-        markerProvider.recalculateMarkers(context);
-      } catch (e) {
-        debugPrint('SplitView: Error refreshing bounds: $e');
-      }
-    });
   }
 
   @override
@@ -112,7 +92,6 @@ class _SplitViewState extends State<SplitView> {
                       _splitRatio = 0.0;
                     }
                   });
-                  _onSplitRatioChanged();
                 },
                 child: Center(
                   child: Container(

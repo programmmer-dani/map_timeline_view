@@ -35,14 +35,9 @@ class TimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final groups = context.watch<ResearchGroupsProvider>().groups;
-    // Listen to time changes to trigger rebuilds for highlighting
     context.watch<TimelineRangeProvider>();
-    // Listen to selected event changes to trigger rebuilds for highlighting
     context.watch<SelectedEventProvider>();
-    // Listen to map bounds changes to trigger rebuilds for timeline filtering
     final mapBoundsProvider = context.watch<MapBoundsProvider>();
-    
-    debugPrint('TimelineWidget: initialized: ${mapBoundsProvider.isInitialized}, valid: ${mapBoundsProvider.isValidBounds}');
 
     final selectedGroups = groups.where((g) => g.isSelected == true).toList();
 
