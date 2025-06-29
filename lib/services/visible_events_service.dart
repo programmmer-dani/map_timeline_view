@@ -78,6 +78,21 @@ class VisibleEventsService {
     return visibleEventsByGroup[groupId] ?? [];
   }
 
+  /// Get all visible events as a flat list
+  List<Event> getAllVisibleEvents({
+    required BuildContext context,
+    LatLngBounds? mapBounds,
+    bool includeMapBoundsFilter = true,
+  }) {
+    final visibleEventsByGroup = calculateVisibleEvents(
+      context: context,
+      mapBounds: mapBounds,
+      includeMapBoundsFilter: includeMapBoundsFilter,
+    );
+
+    return visibleEventsByGroup.values.expand((events) => events).toList();
+  }
+
   /// Get a singleton instance of the visible events service
   static VisibleEventsService get instance => _instance;
 } 

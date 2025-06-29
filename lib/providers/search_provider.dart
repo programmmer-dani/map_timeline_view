@@ -5,6 +5,8 @@ import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/providers/map_bounds_provider.dart';
+import 'package:map_timeline_view/services/visible_events_service.dart';
 import 'package:provider/provider.dart';
 
 class SearchProvider extends ChangeNotifier {
@@ -32,24 +34,21 @@ class SearchProvider extends ChangeNotifier {
   }
 
   void _generateSuggestions(String query) {
-    final researchGroupsProvider = Provider.of<ResearchGroupsProvider>(
-      navigatorKey.currentContext!,
-      listen: false,
+    final context = navigatorKey.currentContext!;
+    final visibleEventsService = VisibleEventsService.instance;
+    final mapBoundsProvider = Provider.of<MapBoundsProvider>(context, listen: false);
+    
+    // Get only the currently visible events (those shown on timeline and map)
+    final visibleEvents = visibleEventsService.getAllVisibleEvents(
+      context: context,
+      mapBounds: mapBoundsProvider.currentBounds,
+      includeMapBoundsFilter: mapBoundsProvider.isInitialized,
     );
 
-    final allEvents = <Event>[];
-    for (final group in researchGroupsProvider.groups) {
-      allEvents.addAll(group.events);
-    }
-
-    _suggestions =
-        allEvents
-            .where(
-              (event) =>
-                  event.title.toLowerCase().contains(query.toLowerCase()),
-            )
-            .take(10)
-            .toList();
+    _suggestions = visibleEvents
+        .where((event) => event.title.toLowerCase().contains(query.toLowerCase()))
+        .take(10)
+        .toList();
   }
 
   void selectEvent(Event event, BuildContext context) {
