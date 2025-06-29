@@ -132,8 +132,8 @@ class MapMarkerProvider extends ChangeNotifier {
   }
 
   List<Marker> _applyClustering(List<Marker> individualMarkers, BuildContext context) {
-    if (individualMarkers.length < _clusterThreshold) {
-      return individualMarkers; 
+    if (individualMarkers.isEmpty) {
+      return individualMarkers;
     }
 
     final clusters = <MarkerCluster>[];
@@ -159,10 +159,9 @@ class MapMarkerProvider extends ChangeNotifier {
         final center = _calculateClusterCenter(nearbyMarkers);
         clusters.add(MarkerCluster(center, nearbyMarkers));
       } else {
+        // Create individual clusters for single events
         for (final m in nearbyMarkers) {
-          if (!processedMarkers.contains(m)) {
-            clusters.add(MarkerCluster(m.point, [m]));
-          }
+          clusters.add(MarkerCluster(m.point, [m]));
         }
       }
     }

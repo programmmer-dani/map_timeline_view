@@ -39,7 +39,18 @@ class VisibleEventsService {
         // Map bounds filtering (only for map, optional for timeline)
         bool isInMapBounds = true;
         if (includeMapBoundsFilter && mapBounds != null) {
-          isInMapBounds = mapBounds.contains(LatLng(event.latitude, event.longitude));
+          // Check if map bounds are very large (zoomed out)
+          final latSpan = (mapBounds.northEast.latitude - mapBounds.southWest.latitude).abs();
+          final lngSpan = (mapBounds.northEast.longitude - mapBounds.southWest.longitude).abs();
+          final isZoomedOut = latSpan > 50 || lngSpan > 50; // Very large bounds
+          
+          if (isZoomedOut) {
+            // When zoomed out, don't filter by map bounds to keep all events visible
+            isInMapBounds = true;
+          } else {
+            // When zoomed in, use normal map bounds filtering
+            isInMapBounds = mapBounds.contains(LatLng(event.latitude, event.longitude));
+          }
         }
 
         if (isInTimeRange && isInMapBounds) {
