@@ -30,39 +30,37 @@ class VisibleEventsService {
     final visibleEventsByGroup = <String, List<Event>>{};
 
     for (final group in selectedGroups) {
-      final visibleEvents = <Event>[];
-
-      for (final event in group.events) {
-        // Time-based filtering (same for both map and timeline)
+      final groupEvents = group.events.where((event) {
+        // Time range filter
         final isInTimeRange = event.start.isBefore(visibleEnd) && event.end.isAfter(visibleStart);
         
-        // Map bounds filtering (only for map, optional for timeline)
+        // Map bounds filter (only if bounds are reasonable)
         bool isInMapBounds = true;
         if (includeMapBoundsFilter && mapBounds != null) {
-          // Check if map bounds are very large (zoomed out)
+          // Check if bounds are reasonable (not too small or too large)
           final latSpan = (mapBounds.northEast.latitude - mapBounds.southWest.latitude).abs();
           final lngSpan = (mapBounds.northEast.longitude - mapBounds.southWest.longitude).abs();
-          final isZoomedOut = latSpan > 50 || lngSpan > 50; // Very large bounds
           
-          if (isZoomedOut) {
-            // When zoomed out, don't filter by map bounds to keep all events visible
-            isInMapBounds = true;
+          // If bounds are too small (< 0.1 degrees) or too large (> 50 degrees), skip bounds filtering
+          if (latSpan < 0.1 || lngSpan < 0.1 || latSpan > 50 || lngSpan > 50) {
+            isInMapBounds = true; // Skip bounds filtering for extreme zoom levels
           } else {
-            // When zoomed in, use normal map bounds filtering
-            isInMapBounds = mapBounds.contains(LatLng(event.latitude, event.longitude));
+            // Normal bounds check
+            isInMapBounds = event.latitude >= mapBounds.southWest.latitude &&
+                event.latitude <= mapBounds.northEast.latitude &&
+                event.longitude >= mapBounds.southWest.longitude &&
+                event.longitude <= mapBounds.northEast.longitude;
           }
         }
+        
+        return isInTimeRange && isInMapBounds;
+      }).toList();
 
-        if (isInTimeRange && isInMapBounds) {
-          visibleEvents.add(event);
-        }
-      }
-
-      if (visibleEvents.isNotEmpty) {
-        visibleEventsByGroup[group.id] = visibleEvents;
+      if (groupEvents.isNotEmpty) {
+        visibleEventsByGroup[group.id] = groupEvents;
       }
     }
-    
+
     return visibleEventsByGroup;
   }
 

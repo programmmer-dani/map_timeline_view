@@ -50,6 +50,19 @@ class MapMarkerProvider extends ChangeNotifier {
     try {
       final bounds = mapController.bounds;
       if (bounds == null) {
+        debugPrint('Map bounds are null, skipping marker recalculation');
+        return;
+      }
+
+      // Debug: Log the actual bounds being used
+      debugPrint('Map bounds: ${bounds.southWest.latitude}, ${bounds.southWest.longitude} to ${bounds.northEast.latitude}, ${bounds.northEast.longitude}');
+      
+      // Validate bounds are reasonable
+      final latSpan = (bounds.northEast.latitude - bounds.southWest.latitude).abs();
+      final lngSpan = (bounds.northEast.longitude - bounds.southWest.longitude).abs();
+      
+      if (latSpan < 0.001 || lngSpan < 0.001) {
+        debugPrint('Map bounds are too small, skipping marker recalculation');
         return;
       }
 

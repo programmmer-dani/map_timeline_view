@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/widgets/event_row.dart';
 
 class TimelineWidget extends StatelessWidget {
@@ -33,7 +34,10 @@ class TimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final groups = context.watch<ResearchGroupsProvider>().groups;
+    // Listen to time changes to trigger rebuilds for highlighting
     context.watch<TimelineRangeProvider>();
+    // Listen to selected event changes to trigger rebuilds for highlighting
+    context.watch<SelectedEventProvider>();
 
     final selectedGroups = groups.where((g) => g.isSelected == true).toList();
 

@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:provider/provider.dart';
 
 class MapView extends StatefulWidget {
@@ -17,6 +18,7 @@ class MapViewState extends State<MapView> {
   Timer? _debounceTimer;
   MapMarkerProvider? markerProvider;
   TimelineRangeProvider? timeProvider;
+  SelectedEventProvider? selectedEventProvider;
 
   @override
   void didChangeDependencies() {
@@ -29,6 +31,10 @@ class MapViewState extends State<MapView> {
       timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
       timeProvider!.addListener(_onTimeProviderChanged);
     }
+    if (selectedEventProvider == null) {
+      selectedEventProvider = Provider.of<SelectedEventProvider>(context, listen: false);
+      selectedEventProvider!.addListener(_onSelectedEventChanged);
+    }
   }
 
   @override
@@ -36,6 +42,7 @@ class MapViewState extends State<MapView> {
     _debounceTimer?.cancel();
     markerProvider?.removeListener(_onMarkerProviderChanged);
     timeProvider?.removeListener(_onTimeProviderChanged);
+    selectedEventProvider?.removeListener(_onSelectedEventChanged);
     super.dispose();
   }
 
@@ -50,10 +57,20 @@ class MapViewState extends State<MapView> {
     }
   }
 
+  void _onSelectedEventChanged() {
+    // Recalculate markers when selected event changes to update highlighting
+    if (mounted && markerProvider != null) {
+      markerProvider!.recalculateMarkers(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final markerProvider = context.watch<MapMarkerProvider>();
+    // Listen to time changes to trigger rebuilds for highlighting
     context.watch<TimelineRangeProvider>();
+    // Listen to selected event changes to trigger rebuilds for highlighting
+    context.watch<SelectedEventProvider>();
 
     return FlutterMap(
       mapController: markerProvider.mapController,
