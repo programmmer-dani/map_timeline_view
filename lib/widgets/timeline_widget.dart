@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, TargetPlatform;
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
-import 'package:map_timeline_view/entities/research_group.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/event_row.dart';
@@ -36,9 +33,7 @@ class TimelineWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final groups = context.watch<ResearchGroupsProvider>().groups;
-    final timeProvider = context.watch<TimelineRangeProvider>();
-    final visibleStart = timeProvider.startingPoint;
-    final visibleEnd = timeProvider.endingPoint;
+    context.watch<TimelineRangeProvider>();
 
     final selectedGroups = groups.where((g) => g.isSelected == true).toList();
 
@@ -70,8 +65,6 @@ class TimelineWidget extends StatelessWidget {
                   baseColor: baseColor,
                   textColor: textColor,
                   eventRowColor: eventRowColor,
-                  visibleStart: visibleStart,
-                  visibleEnd: visibleEnd,
                   maxLanes: maxLanes > 0 ? maxLanes : 1, 
                   context: context,
                 ),
@@ -98,8 +91,6 @@ class TimelineWidget extends StatelessWidget {
                   baseColor: baseColor,
                   textColor: textColor,
                   eventRowColor: eventRowColor,
-                  visibleStart: visibleStart,
-                  visibleEnd: visibleEnd,
                   maxLanes: 2,
                   context: context,
                 ),
@@ -116,8 +107,6 @@ class TimelineWidget extends StatelessWidget {
     required Color baseColor,
     required Color textColor,
     required Color eventRowColor,
-    required DateTime visibleStart,
-    required DateTime visibleEnd,
     required int maxLanes,
     required BuildContext context,
   }) {
@@ -163,8 +152,6 @@ class TimelineWidget extends StatelessWidget {
             child: SizedBox.expand(
               child: EventRow(
                 group: group,
-                visibleStart: visibleStart,
-                visibleEnd: visibleEnd,
                 onEventTap: onEventTap,
                 maxLanes: maxLanes,
                 groupColor: baseColor,

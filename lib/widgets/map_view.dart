@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_timeline_view/providers/marker_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:provider/provider.dart';
 
 class MapView extends StatefulWidget {
@@ -15,6 +16,7 @@ class MapView extends StatefulWidget {
 class MapViewState extends State<MapView> {
   Timer? _debounceTimer;
   MapMarkerProvider? markerProvider;
+  TimelineRangeProvider? timeProvider;
 
   @override
   void didChangeDependencies() {
@@ -23,12 +25,17 @@ class MapViewState extends State<MapView> {
       markerProvider = Provider.of<MapMarkerProvider>(context, listen: false);
       markerProvider!.addListener(_onMarkerProviderChanged);
     }
+    if (timeProvider == null) {
+      timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
+      timeProvider!.addListener(_onTimeProviderChanged);
+    }
   }
 
   @override
   void dispose() {
     _debounceTimer?.cancel();
     markerProvider?.removeListener(_onMarkerProviderChanged);
+    timeProvider?.removeListener(_onTimeProviderChanged);
     super.dispose();
   }
 
@@ -36,9 +43,17 @@ class MapViewState extends State<MapView> {
     if (mounted) setState(() {});
   }
 
+  void _onTimeProviderChanged() {
+    // Recalculate markers when time changes to update highlighting
+    if (mounted && markerProvider != null) {
+      markerProvider!.recalculateMarkers(context);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final markerProvider = context.watch<MapMarkerProvider>();
+    context.watch<TimelineRangeProvider>();
 
     return FlutterMap(
       mapController: markerProvider.mapController,

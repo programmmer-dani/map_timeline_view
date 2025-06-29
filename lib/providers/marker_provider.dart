@@ -7,8 +7,10 @@ import 'package:map_timeline_view/entities/event_type.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
 import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/services/visible_events_service.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/widgets/timeline_indicator.dart';
+import 'package:map_timeline_view/widgets/event_highlight_indicator.dart';
 import 'package:provider/provider.dart';
 
 class MarkerCluster {
@@ -45,65 +47,43 @@ class MapMarkerProvider extends ChangeNotifier {
   }
 
   void recalculateMarkers(BuildContext context) {
-    print('=== Recalculating Markers ===');
     try {
       final bounds = mapController.bounds;
       if (bounds == null) {
-        print('Map bounds are null, skipping marker calculation');
         return;
       }
-      print('Map bounds: ${bounds.southWest} to ${bounds.northEast}');
 
-      final timeProvider = Provider.of<TimelineRangeProvider>(
-        context,
-        listen: false,
-      );
+      // Use centralized service to get visible events
+      final visibleEventsService = VisibleEventsService.instance;
+      final visibleEventsByGroup = visibleEventsService.calculateMapVisibleEvents(context, bounds);
+
+      final timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
       final selectedTime = timeProvider.selectedTime;
-      print('Selected time: $selectedTime');
-
-      final researchGroupsProvider = Provider.of<ResearchGroupsProvider>(
-        context,
-        listen: false,
-      );
-      final selectedGroups = researchGroupsProvider.groups.where(
-        (g) => g.isSelected,
-      );
-      print('Selected groups: ${selectedGroups.length}');
 
       final individualMarkers = <Marker>[];
 
-      for (final group in selectedGroups) {
-        print('Processing group: ${group.name} with ${group.events.length} events');
-        final groupIndex = selectedGroups.toList().indexOf(group);
-        final groupColor = _getGroupColor(groupIndex);
+      // Process visible events by group
+      for (final entry in visibleEventsByGroup.entries) {
+        final groupId = entry.key;
+        final visibleEvents = entry.value;
         
-        for (final event in group.events) {
-          final normalizedSelectedTime = DateTime(
-            selectedTime.year,
-            selectedTime.month,
-            selectedTime.day,
-            selectedTime.hour,
-            selectedTime.minute,
-          );
-          
-          final isInTime =
-              event.start.isBefore(selectedTime) &&
-              event.end.isAfter(selectedTime);
-          final isInBounds = bounds.contains(
-            LatLng(event.latitude, event.longitude),
-          );
+        // Find the group to get its color
+        final researchGroupsProvider = Provider.of<ResearchGroupsProvider>(context, listen: false);
+        final group = researchGroupsProvider.groups.firstWhere((g) => g.id == groupId);
+        final selectedGroups = researchGroupsProvider.groups.where((g) => g.isSelected).toList();
+        final groupIndex = selectedGroups.indexOf(group);
+        final groupColor = _getGroupColor(groupIndex);
 
-          print('Event: ${event.title} - Start: ${event.start}, End: ${event.end}');
-          print('Normalized selected time: $normalizedSelectedTime');
-          print('Event: ${event.title} - In time: $isInTime, In bounds: $isInBounds');
-          print('Event: ${event.title} - Start before selected: ${event.start.isBefore(selectedTime)}, End after selected: ${event.end.isAfter(selectedTime)}');
-
-          if (isInTime && isInBounds) {
-            individualMarkers.add(
-              Marker(
-                width: 100, 
-                height: 40,
-                point: LatLng(event.latitude, event.longitude),
+        for (final event in visibleEvents) {
+          individualMarkers.add(
+            Marker(
+              width: 100, 
+              height: 40,
+              point: LatLng(event.latitude, event.longitude),
+              child: EventHighlightIndicator(
+                event: event,
+                groupColor: groupColor,
+                opacity: 0.6, // De-highlight non-overlapping events
                 child: GestureDetector(
                   onTap: () {
                     final selectedEventProvider =
@@ -139,14 +119,12 @@ class MapMarkerProvider extends ChangeNotifier {
                   ),
                 ),
               ),
-            );
-            print('Added marker for event: ${event.title}');
-          }
+            ),
+          );
         }
       }
 
       _markers = _applyClustering(individualMarkers, context);
-      print('Total markers after clustering: ${_markers.length}');
       notifyListeners();
     } catch (e) {
       debugPrint('MapController not ready yet: $e');
@@ -276,8 +254,7 @@ class MapMarkerProvider extends ChangeNotifier {
                   subtitle: Text('Tap to view details'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    final markerChild = marker.child as GestureDetector;
-                    markerChild.onTap?.call();
+                    _triggerMarkerTap(marker);
                   },
                 ),
             ],
@@ -293,9 +270,33 @@ class MapMarkerProvider extends ChangeNotifier {
     );
   }
 
+  void _triggerMarkerTap(Marker marker) {
+    Widget currentWidget = marker.child;
+    
+    // Navigate through the widget tree to find the GestureDetector
+    while (currentWidget is EventHighlightIndicator) {
+      currentWidget = (currentWidget as EventHighlightIndicator).child;
+    }
+    
+    if (currentWidget is GestureDetector) {
+      currentWidget.onTap?.call();
+    }
+  }
+
   EventType _getEventTypeFromMarker(Marker marker) {
-    final icon = marker.child as GestureDetector;
-    final rowWidget = icon.child as Row;
+    Widget currentWidget = marker.child;
+    
+    // Navigate through the widget tree to find the GestureDetector
+    while (currentWidget is EventHighlightIndicator) {
+      currentWidget = (currentWidget as EventHighlightIndicator).child;
+    }
+    
+    if (currentWidget is! GestureDetector) {
+      // Fallback if we can't find the expected structure
+      return EventType.storm;
+    }
+    
+    final rowWidget = currentWidget.child as Row;
     final iconWidget = rowWidget.children[0] as Icon;
     
     if (iconWidget.icon == Icons.water) return EventType.flood;

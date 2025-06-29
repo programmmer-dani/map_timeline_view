@@ -20,9 +20,7 @@ class MockDataService {
     required EventsProvider eventsProvider,
     required TimelineRangeProvider timeProvider,
   }) {
-    print('=== Initializing All Mock Data ===');
-    
-    // Step 1: Initialize users (shared across providers)
+    // Step 1: Create users (shared across providers)
     final users = _createMockUsers();
     
     // Step 2: Initialize research groups
@@ -33,8 +31,6 @@ class MockDataService {
     
     // Step 4: Initialize timeline
     _initializeTimeline(timeProvider);
-    
-    print('=== Mock Data Initialization Complete ===');
   }
 
   /// Create mock users that will be shared across the application
@@ -49,14 +45,9 @@ class MockDataService {
     ];
   }
 
-  /// Initialize research groups with mock data
-  void _initializeResearchGroups(
-    ResearchGroupsProvider provider,
-    List<User> users,
-  ) {
-    print('Initializing research groups...');
-    
-    final groups = [
+  /// Create mock research groups
+  List<ResearchGroup> _createMockResearchGroups(List<User> users) {
+    return [
       ResearchGroup(
         id: 'rg1',
         name: 'Hydrology Team',
@@ -77,23 +68,16 @@ class MockDataService {
         name: 'Meteorology Unit',
         members: [users[4]], // Eva
       ),
-      ResearchGroup(
-        id: 'rg5',
-        name: 'Environmental Sensors',
-        members: [users[0], users[4]], // Alice, Eva
-      ),
-      ResearchGroup(
-        id: 'rg6',
-        name: 'Geology Experts',
-        members: [users[1], users[2]], // Bob, Carla
-      ),
     ];
+  }
 
-    for (final group in groups) {
-      provider.addGroup(group);
-    }
+  /// Initialize research groups with mock data
+  void _initializeResearchGroups(ResearchGroupsProvider groupsProvider, List<User> users) {
+    final groups = _createMockResearchGroups(users);
     
-    print('Added ${groups.length} research groups');
+    for (final group in groups) {
+      groupsProvider.addGroup(group);
+    }
   }
 
   /// Initialize events with mock data and assign them to groups
@@ -102,8 +86,6 @@ class MockDataService {
     ResearchGroupsProvider groupsProvider,
     List<User> users,
   ) {
-    print('Initializing events...');
-    
     final events = _createMockEvents(users);
     
     // Add all events to the events provider
@@ -113,8 +95,6 @@ class MockDataService {
     
     // Assign events to appropriate research groups
     _assignEventsToGroups(events, groupsProvider);
-    
-    print('Added ${events.length} events');
   }
 
   /// Create all mock events
@@ -518,10 +498,7 @@ class MockDataService {
     List<Event> events,
     ResearchGroupsProvider groupsProvider,
   ) {
-    print('Assigning events to research groups...');
-    
     if (groupsProvider.groups.length < 4) {
-      print('ERROR: Not enough groups available!');
       return;
     }
 
@@ -549,17 +526,10 @@ class MockDataService {
     for (final event in wildfireEvents) {
       groupsProvider.addEventToGroup(groupsProvider.groups[2].id, event);
     }
-
-    // Print summary
-    for (int i = 0; i < groupsProvider.groups.length; i++) {
-      print('Group ${groupsProvider.groups[i].name} has ${groupsProvider.groups[i].events.length} events');
-    }
   }
 
   /// Initialize timeline with default values
   void _initializeTimeline(TimelineRangeProvider timeProvider) {
-    print('Initializing timeline...');
-    
     final defaultStart = DateTime(2025, 6, 1);
     final defaultEnd = DateTime(2025, 7, 31);
     final defaultSelected = DateTime(2025, 6, 9, 12, 0); // Middle of the test event
@@ -569,8 +539,6 @@ class MockDataService {
       startingPoint: defaultStart,
       endingPoint: defaultEnd,
     );
-    
-    print('Timeline initialized: ${defaultStart} to ${defaultEnd}, selected: ${defaultSelected}');
   }
 
   /// Get a singleton instance of the mock data service

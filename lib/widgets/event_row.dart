@@ -4,8 +4,11 @@ import 'package:flutter/foundation.dart'
 import 'package:provider/provider.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/research_group.dart';
+import 'package:map_timeline_view/services/visible_events_service.dart';
 import 'package:map_timeline_view/widgets/event_pop_up.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
+import 'package:map_timeline_view/providers/time_provider.dart';
+import 'package:map_timeline_view/widgets/event_highlight_indicator.dart';
 
 class GroupEventCluster {
   final List<Event> events;
@@ -44,8 +47,6 @@ class GroupEventCluster {
 
 class EventRow extends StatelessWidget {
   final ResearchGroup group;
-  final DateTime visibleStart;
-  final DateTime visibleEnd;
   final void Function(Event)? onEventTap; 
   final int maxLanes; 
   final Color groupColor; 
@@ -53,8 +54,6 @@ class EventRow extends StatelessWidget {
   const EventRow({
     super.key,
     required this.group,
-    required this.visibleStart,
-    required this.visibleEnd,
     this.onEventTap,
     this.maxLanes = 3, 
     required this.groupColor,
@@ -62,9 +61,13 @@ class EventRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final visibleEvents = group.events.where((event) {
-      return (event.start.isBefore(visibleEnd) && event.end.isAfter(visibleStart));
-    }).toList();
+    // Use centralized service to get visible events for this group
+    final visibleEventsService = VisibleEventsService.instance;
+    final visibleEvents = visibleEventsService.getVisibleEventsForGroup(
+      context: context,
+      groupId: group.id,
+      includeMapBoundsFilter: false, // Timeline doesn't use map bounds filtering
+    );
 
     final lanes = _assignEventsToLanes(visibleEvents);
     const laneHeight = 34.0;
@@ -102,44 +105,47 @@ class EventRow extends StatelessWidget {
                         ...lanes[laneIndex].map((event) {
                           final left = _calculateOffset(
                             event.start,
-                            visibleStart,
-                            visibleEnd,
                             rowWidth,
+                            context,
                           );
                           final width = _calculateWidth(
                             event,
-                            visibleStart,
-                            visibleEnd,
                             rowWidth,
+                            context,
                           );
 
                           return Positioned(
                             top: laneIndex * laneHeight,
                             left: left,
-                            child: GestureDetector(
-                              onTap: () => _handleEventTap(context, event),
-                              child: Container(
-                                width: width,
-                                height: laneHeight - 4,
-                                margin: const EdgeInsets.symmetric(horizontal: 2),
-                                decoration: BoxDecoration(
-                                  color: groupColor,
-                                  borderRadius: BorderRadius.circular(20),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: groupColor.withOpacity(0.3),
-                                      blurRadius: 4,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: Center(
-                                  child: Text(
-                                    event.title,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
-                                      overflow: TextOverflow.ellipsis,
+                            child: EventHighlightIndicator(
+                              event: event,
+                              groupColor: groupColor,
+                              opacity: 0.6, // De-highlight non-overlapping events
+                              child: GestureDetector(
+                                onTap: () => _handleEventTap(context, event),
+                                child: Container(
+                                  width: width,
+                                  height: laneHeight - 4,
+                                  margin: const EdgeInsets.symmetric(horizontal: 2),
+                                  decoration: BoxDecoration(
+                                    color: groupColor,
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: groupColor.withOpacity(0.3),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 2),
+                                      ),
+                                    ],
+                                  ),
+                                  child: Center(
+                                    child: Text(
+                                      event.title,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 12,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -160,57 +166,60 @@ class EventRow extends StatelessWidget {
                         Positioned(
                           left: _calculateOffset(
                             cluster.start,
-                            visibleStart,
-                            visibleEnd,
                             rowWidth,
+                            context,
                           ),
-                          child: GestureDetector(
-                            onTap: () => _showClusterDetails(context, cluster),
-                            child: Container(
-                              width: _calculateClusterWidth(
-                                cluster,
-                                visibleStart,
-                                visibleEnd,
-                                rowWidth,
-                              ),
-                              height: 44,
-                              margin: const EdgeInsets.symmetric(horizontal: 2),
-                              decoration: BoxDecoration(
-                                color: groupColor.withOpacity(0.8),
-                                borderRadius: BorderRadius.circular(20),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: groupColor.withOpacity(0.4),
-                                    blurRadius: 6,
-                                    offset: const Offset(0, 3),
-                                  ),
-                                ],
-                                border: Border.all(
-                                  color: groupColor,
-                                  width: 2,
+                          child: EventHighlightIndicator(
+                            event: cluster.events.first, // Use first event for highlighting
+                            groupColor: groupColor,
+                            opacity: 0.6, // De-highlight non-overlapping events
+                            child: GestureDetector(
+                              onTap: () => _showClusterDetails(context, cluster),
+                              child: Container(
+                                width: _calculateClusterWidth(
+                                  cluster,
+                                  rowWidth,
+                                  context,
                                 ),
-                              ),
-                              child: Center(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      '${cluster.count}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      cluster.dominantType,
-                                      style: TextStyle(
-                                        color: Colors.white.withOpacity(0.9),
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                      ),
+                                height: 44,
+                                margin: const EdgeInsets.symmetric(horizontal: 2),
+                                decoration: BoxDecoration(
+                                  color: groupColor.withOpacity(0.8),
+                                  borderRadius: BorderRadius.circular(20),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: groupColor.withOpacity(0.4),
+                                      blurRadius: 6,
+                                      offset: const Offset(0, 3),
                                     ),
                                   ],
+                                  border: Border.all(
+                                    color: groupColor,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        '${cluster.count}',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        cluster.dominantType,
+                                        style: TextStyle(
+                                          color: Colors.white.withOpacity(0.9),
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
@@ -256,38 +265,35 @@ class EventRow extends StatelessWidget {
 
   double _calculateOffset(
     DateTime eventStart,
-    DateTime visibleStart,
-    DateTime visibleEnd,
     double rowWidth,
+    BuildContext context,
   ) {
-    final totalMs =
-        visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
-    final offsetMs =
-        eventStart.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
+    final timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
+    final visibleStart = timeProvider.startingPoint;
+    final visibleEnd = timeProvider.endingPoint;
+    
+    final totalMs = visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
+    final offsetMs = eventStart.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
     return (offsetMs / totalMs) * rowWidth;
   }
 
   double _calculateWidth(
     Event event,
-    DateTime visibleStart,
-    DateTime visibleEnd,
     double rowWidth,
+    BuildContext context,
   ) {
-    final totalMs =
-        visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
-    final durationMs =
-        event.end.millisecondsSinceEpoch - event.start.millisecondsSinceEpoch;
+    final timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
+    final visibleStart = timeProvider.startingPoint;
+    final visibleEnd = timeProvider.endingPoint;
+    
+    final totalMs = visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
+    final durationMs = event.end.millisecondsSinceEpoch - event.start.millisecondsSinceEpoch;
     return (durationMs / totalMs) * rowWidth;
   }
 
   List<List<Event>> _assignEventsToLanes(List<Event> events) {
     final sorted = List<Event>.from(events)
       ..sort((a, b) => a.start.compareTo(b.start));
-    final visibleEvents =
-        group.events.where((event) {
-          return (event.start.isBefore(visibleEnd) &&
-              event.end.isAfter(visibleStart));
-        }).toList();
 
     final lanes = <List<Event>>[];
 
@@ -354,10 +360,13 @@ class EventRow extends StatelessWidget {
 
   double _calculateClusterWidth(
     GroupEventCluster cluster,
-    DateTime visibleStart,
-    DateTime visibleEnd,
     double rowWidth,
+    BuildContext context,
   ) {
+    final timeProvider = Provider.of<TimelineRangeProvider>(context, listen: false);
+    final visibleStart = timeProvider.startingPoint;
+    final visibleEnd = timeProvider.endingPoint;
+    
     final totalMs = visibleEnd.millisecondsSinceEpoch - visibleStart.millisecondsSinceEpoch;
     if (totalMs <= 0) return 0.0;
     final durationMs = cluster.end.millisecondsSinceEpoch - cluster.start.millisecondsSinceEpoch;

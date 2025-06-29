@@ -24,14 +24,12 @@ class ControlPanel extends StatefulWidget {
 }
 
 class _ControlPanelState extends State<ControlPanel> {
-  late DateTime _selectedTime;
   final LayerLink _layerLink = LayerLink();
   OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    _selectedTime = DateTime.now();
   }
 
   @override
@@ -42,7 +40,6 @@ class _ControlPanelState extends State<ControlPanel> {
 
   void _handleTimeChanged(DateTime newTime) {
     setState(() {
-      _selectedTime = newTime;
       final markerProvider = Provider.of<MapMarkerProvider>(
         context,
         listen: false,

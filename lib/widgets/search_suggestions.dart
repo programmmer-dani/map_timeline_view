@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/event_type.dart';
-import 'package:map_timeline_view/providers/search_provider.dart';
-import 'package:map_timeline_view/providers/time_provider.dart';
 import 'package:map_timeline_view/widgets/timeline_indicator.dart';
-import 'package:provider/provider.dart';
+import 'package:map_timeline_view/providers/selected_event_provider.dart';
 
 class SearchSuggestions extends StatelessWidget {
   final List<Event> suggestions;
