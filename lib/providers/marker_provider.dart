@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, TargetPlatform;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:map_timeline_view/entities/event.dart';
 import 'package:map_timeline_view/entities/event_type.dart';
 import 'package:map_timeline_view/providers/researchgroup_provider.dart';
 import 'package:map_timeline_view/providers/selected_event_provider.dart';
@@ -17,8 +18,10 @@ class MarkerCluster {
   final LatLng center;
   final List<Marker> markers;
   final int count;
+  final bool hasHighlightedEvents;
+  final bool hasSelectedEvent;
 
-  MarkerCluster(this.center, this.markers) : count = markers.length;
+  MarkerCluster(this.center, this.markers, this.hasHighlightedEvents, this.hasSelectedEvent) : count = markers.length;
 }
 
 class MapMarkerProvider extends ChangeNotifier {
@@ -170,11 +173,15 @@ class MapMarkerProvider extends ChangeNotifier {
 
       if (nearbyMarkers.length >= _clusterThreshold) {
         final center = _calculateClusterCenter(nearbyMarkers);
-        clusters.add(MarkerCluster(center, nearbyMarkers));
+        final hasHighlightedEvents = _checkClusterHighlighting(nearbyMarkers, context);
+        final hasSelectedEvent = _checkClusterSelection(nearbyMarkers, context);
+        clusters.add(MarkerCluster(center, nearbyMarkers, hasHighlightedEvents, hasSelectedEvent));
       } else {
         // Create individual clusters for single events
         for (final m in nearbyMarkers) {
-          clusters.add(MarkerCluster(m.point, [m]));
+          final hasHighlightedEvents = _checkClusterHighlighting([m], context);
+          final hasSelectedEvent = _checkClusterSelection([m], context);
+          clusters.add(MarkerCluster(m.point, [m], hasHighlightedEvents, hasSelectedEvent));
         }
       }
     }
@@ -191,7 +198,7 @@ class MapMarkerProvider extends ChangeNotifier {
             point: cluster.center,
             child: GestureDetector(
               onTap: () => _showClusterDetails(context, cluster),
-              child: _buildClusterIcon(cluster.count),
+              child: _buildClusterIcon(cluster.count, cluster.hasHighlightedEvents, cluster.hasSelectedEvent),
             ),
           ),
         );
@@ -222,15 +229,37 @@ class MapMarkerProvider extends ChangeNotifier {
     );
   }
 
-  Widget _buildClusterIcon(int count) {
+  Widget _buildClusterIcon(int count, bool hasHighlightedEvents, bool hasSelectedEvent) {
+    // Determine the cluster color and border based on highlighting state
+    Color clusterColor;
+    Color borderColor;
+    double borderWidth;
+    
+    if (hasSelectedEvent) {
+      // Selected event takes precedence - gold/yellow
+      clusterColor = const Color(0xFFFFD700); // Gold
+      borderColor = Colors.white;
+      borderWidth = 3.0;
+    } else if (hasHighlightedEvents) {
+      // Time-based highlighting - red
+      clusterColor = Colors.red;
+      borderColor = Colors.white;
+      borderWidth = 2.5;
+    } else {
+      // No highlighting - grey
+      clusterColor = Colors.grey;
+      borderColor = Colors.white;
+      borderWidth = 2.0;
+    }
+    
     return Container(
       decoration: BoxDecoration(
-        color: Colors.red,
+        color: clusterColor,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.white, width: 2),
+        border: Border.all(color: borderColor, width: borderWidth),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -340,5 +369,54 @@ class MapMarkerProvider extends ChangeNotifier {
   bool _isMobile() {
     return defaultTargetPlatform == TargetPlatform.iOS ||
         defaultTargetPlatform == TargetPlatform.android;
+  }
+
+  /// Check if any event in the cluster should be highlighted based on time
+  bool _checkClusterHighlighting(List<Marker> markers, BuildContext context) {
+    final visibleEventsService = VisibleEventsService.instance;
+    
+    for (final marker in markers) {
+      final event = _getEventFromMarker(marker);
+      if (event != null) {
+        final isHighlighted = visibleEventsService.isEventHighlighted(
+          context: context,
+          event: event,
+        );
+        if (isHighlighted) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /// Check if any event in the cluster is the selected event
+  bool _checkClusterSelection(List<Marker> markers, BuildContext context) {
+    final selectedEventProvider = Provider.of<SelectedEventProvider>(context, listen: false);
+    final selectedEvent = selectedEventProvider.event;
+    
+    if (selectedEvent == null) return false;
+    
+    for (final marker in markers) {
+      final event = _getEventFromMarker(marker);
+      if (event != null && event.id == selectedEvent.id) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /// Extract the Event object from a marker
+  Event? _getEventFromMarker(Marker marker) {
+    Widget currentWidget = marker.child;
+    
+    // Navigate through the widget tree to find the EventHighlightIndicator
+    while (currentWidget is EventHighlightIndicator) {
+      final highlightIndicator = currentWidget as EventHighlightIndicator;
+      // We can access the event directly from the EventHighlightIndicator
+      return highlightIndicator.event;
+    }
+    
+    return null;
   }
 }
